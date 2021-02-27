@@ -1,2 +1,29 @@
 # faiss_grpc
-faiss的grpc封装用于加载faiss的index并提供搜索topk的服务
+
++ author: hsz12
++ author-email: 
+
+
+
+keywords: 
+
+## 特性
+
++ feature1
+
+## 安装
+
+```bash
+
+```
+
+## 使用
+
++ `example`
+
+    ```
+    ```
+
+## TODO
+
++ todo1:

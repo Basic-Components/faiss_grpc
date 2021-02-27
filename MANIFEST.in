@@ -1,0 +1,5 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include requirements.txt
+recursive-include faiss_grpc *.pyx *.pxd *.pxi *.py *.c *.h *.temp
