@@ -1,0 +1,49 @@
+syntax = "proto3";
+package hszofficial.faiss_rpc;
+option go_package = "hszofficial_faiss_rpc";
+
+service FaissRpc {
+    rpc search (Query) returns (Response){}
+    rpc batch_search (stream BatchQuery) returns (stream BatchResponse){}
+}
+
+message Vec{
+    repeated float elements = 1;
+}
+
+message Query {
+    string target_index =1;
+    int32 k = 2;
+    Vec query_vec=3;
+}
+
+message BatchQuery {
+    string batch_id = 1;
+    string target_index =2;
+    int32 k = 3;
+    repeated Vec query_vecs=4;
+}
+
+message ResponseStatus {
+    enum Stat {
+      SUCCEED = 0;
+      FAILED = 1;
+    }
+    Stat status = 1;
+    string message = 2;
+  }
+
+message TopK {
+    repeated int64 rank =1;
+}
+
+message Response {
+    ResponseStatus status=1;
+    repeated TopK result =2;
+}
+
+message BatchResponse {
+    ResponseStatus status=1;
+    string batch_id = 2;
+    repeated TopK result =3;
+}
