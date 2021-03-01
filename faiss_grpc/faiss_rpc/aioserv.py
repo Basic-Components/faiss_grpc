@@ -11,6 +11,7 @@ from grpc_health.v1 import health_pb2
 from grpc_health.v1 import health_pb2_grpc
 from grpc_channelz.v1 import channelz
 from grpc_reflection.v1alpha import reflection
+from watchdog.observers import Observer
 from pyloggerhelper import log
 from schema_entry import EntryPoint
 from .faiss_rpc_pb2_grpc import add_FaissRpcServicer_to_server

@@ -1,7 +1,6 @@
 from typing import List
 from pyloggerhelper import log
 from readerwriterlock import rwlock
-from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 FAISS_INDEX_MAP={}
