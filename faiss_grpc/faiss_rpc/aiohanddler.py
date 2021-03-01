@@ -1,15 +1,14 @@
-#cython: language_level=3
-import cython
 import multiprocessing
 from concurrent import futures
 from functools import partial
 from typing import Any, Dict, List
+
 import grpc
+import numpy as np
 from pyloggerhelper import log
 from .faiss_rpc_pb2_grpc import FaissRpcServicer
 from .faiss_rpc_pb2 import Response,BatchResponse,ResponseStatus,TopK
 from .index import FAISS_INDEX_MAP,FAISS_INDEX_MAP_LOCK
-from .faiss_search import faiss_search
 
 
 def faiss_search(vecs: List[List[float]], k:int, index:Any) -> List[List[int]]:

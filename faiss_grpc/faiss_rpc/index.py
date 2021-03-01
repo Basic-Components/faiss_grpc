@@ -1,4 +1,6 @@
+from pathlib import Path
 from typing import List
+import faiss
 from pyloggerhelper import log
 from readerwriterlock import rwlock
 from watchdog.events import PatternMatchingEventHandler
@@ -17,10 +19,10 @@ def load_indexes(index_dirs:List[str])->None:
         for sub in rootp.iterdir():
             if sub.is_file() and sub.suffix == ".index":
                 index_name = sub.name.replace(".index", "")
-                index = faiss.read_index(sub)
+                index = faiss.read_index(str(sub))
                 log.info("get index", index_name=index_name)
                 with FAISS_INDEX_MAP_LOCK.gen_wlock():
-                    FAISS_INDEX_MAP[key] = index
+                    FAISS_INDEX_MAP[index_name] = index
                     log.info("load index ok", index_name=index_name)
 
 

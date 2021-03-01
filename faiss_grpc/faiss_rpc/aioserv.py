@@ -309,7 +309,7 @@ class Serv(EntryPoint):
         observer.start()
         # 设置核数
         faiss_core_workers = config.get("faiss_core_workers")
-        if faiss_core_workers
+        if faiss_core_workers:
             faiss.omp_set_num_threads(faiss_core_workers)
         # 设置uvloop
         if config.get("uvloop"):
