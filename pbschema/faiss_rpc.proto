@@ -39,7 +39,7 @@ message TopK {
 
 message Response {
     ResponseStatus status=1;
-    repeated TopK result =2;
+    TopK result =2;
 }
 
 message BatchResponse {

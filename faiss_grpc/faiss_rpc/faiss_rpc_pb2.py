@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z\025hszofficial_faiss_rpc',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0f\x66\x61iss_rpc.proto\x12\x15hszofficial.faiss_rpc\"\x17\n\x03Vec\x12\x10\n\x08\x65lements\x18\x01 \x03(\x02\"X\n\x05Query\x12\x14\n\x0ctarget_index\x18\x01 \x01(\t\x12\t\n\x01k\x18\x02 \x01(\x05\x12.\n\nquery_vecs\x18\x03 \x03(\x0b\x32\x1a.hszofficial.faiss_rpc.Vec\"o\n\nBatchQuery\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x14\n\x0ctarget_index\x18\x02 \x01(\t\x12\t\n\x01k\x18\x03 \x01(\x05\x12.\n\nquery_vecs\x18\x04 \x03(\x0b\x32\x1a.hszofficial.faiss_rpc.Vec\"~\n\x0eResponseStatus\x12:\n\x06status\x18\x01 \x01(\x0e\x32*.hszofficial.faiss_rpc.ResponseStatus.Stat\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1f\n\x04Stat\x12\x0b\n\x07SUCCEED\x10\x00\x12\n\n\x06\x46\x41ILED\x10\x01\"\x14\n\x04TopK\x12\x0c\n\x04rank\x18\x01 \x03(\x03\"n\n\x08Response\x12\x35\n\x06status\x18\x01 \x01(\x0b\x32%.hszofficial.faiss_rpc.ResponseStatus\x12+\n\x06result\x18\x02 \x03(\x0b\x32\x1b.hszofficial.faiss_rpc.TopK\"\x85\x01\n\rBatchResponse\x12\x35\n\x06status\x18\x01 \x01(\x0b\x32%.hszofficial.faiss_rpc.ResponseStatus\x12\x10\n\x08\x62\x61tch_id\x18\x02 \x01(\t\x12+\n\x06result\x18\x03 \x03(\x0b\x32\x1b.hszofficial.faiss_rpc.TopK2\xb4\x01\n\x08\x46\x61issRpc\x12I\n\x06search\x12\x1c.hszofficial.faiss_rpc.Query\x1a\x1f.hszofficial.faiss_rpc.Response\"\x00\x12]\n\x0c\x62\x61tch_search\x12!.hszofficial.faiss_rpc.BatchQuery\x1a$.hszofficial.faiss_rpc.BatchResponse\"\x00(\x01\x30\x01\x42\x17Z\x15hszofficial_faiss_rpcb\x06proto3'
+  serialized_pb=b'\n\x0f\x66\x61iss_rpc.proto\x12\x15hszofficial.faiss_rpc\"\x17\n\x03Vec\x12\x10\n\x08\x65lements\x18\x01 \x03(\x02\"W\n\x05Query\x12\x14\n\x0ctarget_index\x18\x01 \x01(\t\x12\t\n\x01k\x18\x02 \x01(\x05\x12-\n\tquery_vec\x18\x03 \x01(\x0b\x32\x1a.hszofficial.faiss_rpc.Vec\"o\n\nBatchQuery\x12\x10\n\x08\x62\x61tch_id\x18\x01 \x01(\t\x12\x14\n\x0ctarget_index\x18\x02 \x01(\t\x12\t\n\x01k\x18\x03 \x01(\x05\x12.\n\nquery_vecs\x18\x04 \x03(\x0b\x32\x1a.hszofficial.faiss_rpc.Vec\"~\n\x0eResponseStatus\x12:\n\x06status\x18\x01 \x01(\x0e\x32*.hszofficial.faiss_rpc.ResponseStatus.Stat\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1f\n\x04Stat\x12\x0b\n\x07SUCCEED\x10\x00\x12\n\n\x06\x46\x41ILED\x10\x01\"\x14\n\x04TopK\x12\x0c\n\x04rank\x18\x01 \x03(\x03\"n\n\x08Response\x12\x35\n\x06status\x18\x01 \x01(\x0b\x32%.hszofficial.faiss_rpc.ResponseStatus\x12+\n\x06result\x18\x02 \x01(\x0b\x32\x1b.hszofficial.faiss_rpc.TopK\"\x85\x01\n\rBatchResponse\x12\x35\n\x06status\x18\x01 \x01(\x0b\x32%.hszofficial.faiss_rpc.ResponseStatus\x12\x10\n\x08\x62\x61tch_id\x18\x02 \x01(\t\x12+\n\x06result\x18\x03 \x03(\x0b\x32\x1b.hszofficial.faiss_rpc.TopK2\xb4\x01\n\x08\x46\x61issRpc\x12I\n\x06search\x12\x1c.hszofficial.faiss_rpc.Query\x1a\x1f.hszofficial.faiss_rpc.Response\"\x00\x12]\n\x0c\x62\x61tch_search\x12!.hszofficial.faiss_rpc.BatchQuery\x1a$.hszofficial.faiss_rpc.BatchResponse\"\x00(\x01\x30\x01\x42\x17Z\x15hszofficial_faiss_rpcb\x06proto3'
 )
 
 
@@ -44,8 +44,8 @@ _RESPONSESTATUS_STAT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=365,
-  serialized_end=396,
+  serialized_start=364,
+  serialized_end=395,
 )
 _sym_db.RegisterEnumDescriptor(_RESPONSESTATUS_STAT)
 
@@ -105,9 +105,9 @@ _QUERY = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='query_vecs', full_name='hszofficial.faiss_rpc.Query.query_vecs', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='query_vec', full_name='hszofficial.faiss_rpc.Query.query_vec', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -124,7 +124,7 @@ _QUERY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=67,
-  serialized_end=155,
+  serialized_end=154,
 )
 
 
@@ -176,8 +176,8 @@ _BATCHQUERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=157,
-  serialized_end=268,
+  serialized_start=156,
+  serialized_end=267,
 )
 
 
@@ -216,8 +216,8 @@ _RESPONSESTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=270,
-  serialized_end=396,
+  serialized_start=269,
+  serialized_end=395,
 )
 
 
@@ -248,8 +248,8 @@ _TOPK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=398,
-  serialized_end=418,
+  serialized_start=397,
+  serialized_end=417,
 )
 
 
@@ -270,8 +270,8 @@ _RESPONSE = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='result', full_name='hszofficial.faiss_rpc.Response.result', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -287,8 +287,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=420,
-  serialized_end=530,
+  serialized_start=419,
+  serialized_end=529,
 )
 
 
@@ -333,11 +333,11 @@ _BATCHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=533,
-  serialized_end=666,
+  serialized_start=532,
+  serialized_end=665,
 )
 
-_QUERY.fields_by_name['query_vecs'].message_type = _VEC
+_QUERY.fields_by_name['query_vec'].message_type = _VEC
 _BATCHQUERY.fields_by_name['query_vecs'].message_type = _VEC
 _RESPONSESTATUS.fields_by_name['status'].enum_type = _RESPONSESTATUS_STAT
 _RESPONSESTATUS_STAT.containing_type = _RESPONSESTATUS
@@ -413,8 +413,8 @@ _FAISSRPC = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=669,
-  serialized_end=849,
+  serialized_start=668,
+  serialized_end=848,
   methods=[
   _descriptor.MethodDescriptor(
     name='search',
