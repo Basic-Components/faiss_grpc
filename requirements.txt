@@ -10,4 +10,3 @@ numpy==1.19.5
 uvloop==0.14.0
 watchdog==2.0.2
 readerwriterlock==1.0.8
-Cython==0.29.22
