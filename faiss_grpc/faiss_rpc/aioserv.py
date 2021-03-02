@@ -17,7 +17,7 @@ from schema_entry import EntryPoint
 from .faiss_rpc_pb2_grpc import add_FaissRpcServicer_to_server
 from .faiss_rpc_pb2 import DESCRIPTOR
 
-from .index import load_indexes,UpdateIndexes
+from .index import load_indexes, UpdateIndexes
 from .aiohanddler import Handdler
 
 _COMPRESSION_OPTIONS = {
@@ -29,7 +29,7 @@ _COMPRESSION_OPTIONS = {
 
 class Serv(EntryPoint):
     """faiss的服务端启动入口.
-    
+
     服务会监听index_dirs指定的目录,并接受指定目录中以`index`为后缀的文件的文件名保存的数据作为faiss的index文件导入.
     请求中的`target_index`字段需要与导入index的文件名去掉`index`后缀后的一致.
     """
@@ -144,25 +144,25 @@ class Serv(EntryPoint):
                     "type": "string"
                 }
             },
-            "uvloop":{
-                "type":"boolean",
-                "description":"是否使用uvloop作为事件循环"
+            "uvloop": {
+                "type": "boolean",
+                "description": "是否使用uvloop作为事件循环"
             },
             "search_workers": {
                 "type": "integer",
-                "title":"w",
+                "title": "w",
                 "description": "执行faiss search 操作的worker线程个数,faiss在非批量处理情况下只会在调用线程中执行时搜索操作,因此需要多线程以提高search接口的qps",
-                "default":4
+                "default": 4
             },
             "faiss_core_workers": {
                 "type": "integer",
                 "title": "f",
                 "description": "执行faiss search批量操作的内部核心worker线程个数,faiss在批量处理情况下会将一批数据发送给多个核心线程处理.",
-                "default":4
+                "default": 4
             },
             "index_dirs": {
                 "type": "array",
-                "items":{
+                "items": {
                     "type": "string"
                 },
                 "description": "定义保存index文件的根目录"
@@ -231,7 +231,7 @@ class Serv(EntryPoint):
             })
         return [(k, v) for k, v in _opt.items()]
 
-    async def run_singal_serv(self,handdler:Handdler, config: Dict[str, Any]) -> None:
+    async def run_singal_serv(self, handdler: Handdler, config: Dict[str, Any]) -> None:
         opts = self.make_opts(config)
         grpc_serv = grpc.aio.server(
             futures.ThreadPoolExecutor(max_workers=config.get("max_threads", 1000)),
@@ -319,14 +319,13 @@ class Serv(EntryPoint):
             except Exception:
                 log.warn("import uvloop error")
             else:
-               log.warn("grpc using uvloop")
+                log.warn("grpc using uvloop")
         try:
             handdler = Handdler(config)
-            asyncio.run(self.run_singal_serv(handdler=handdler,config=config))
+            asyncio.run(self.run_singal_serv(handdler=handdler, config=config))
         except KeyboardInterrupt:
-           log.warn("grpc stoped")
+            log.warn("grpc stoped")
         except Exception as e:
             raise e
         finally:
             handdler.aioexcutor.shutdown()
-

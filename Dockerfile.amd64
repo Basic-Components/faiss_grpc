@@ -1,0 +1,14 @@
+#FROM --platform=$TARGETPLATFORM hsz1273327/miniforge:4.9.2-5
+FROM --platform=$TARGETPLATFORM condaforge/miniforge3:4.9.2-5
+# 复制源文件
+COPY requirements.txt /code/requirements.txt
+COPY pip.conf /etc/pip.conf
+RUN pip --no-cache-dir install --upgrade pip
+WORKDIR /code
+RUN conda install -c pytorch --show-channel-urls -y faiss-cpu==1.7.0
+RUN pip install -r requirements.txt
+COPY faiss_grpc /code/app/
+COPY pyproject.toml /code/pyproject.toml
+COPY setup.cfg /code/setup.cfg
+COPY setup.py /code/setup.py
+ENTRYPOINT ["python" ,"app"]

@@ -1,3 +1,4 @@
+import asyncio
 import multiprocessing
 from concurrent import futures
 from functools import partial
@@ -7,11 +8,11 @@ import grpc
 import numpy as np
 from pyloggerhelper import log
 from .faiss_rpc_pb2_grpc import FaissRpcServicer
-from .faiss_rpc_pb2 import Response,BatchResponse,ResponseStatus,TopK
-from .index import FAISS_INDEX_MAP,FAISS_INDEX_MAP_LOCK
+from .faiss_rpc_pb2 import Response, BatchResponse, ResponseStatus, TopK, Vec
+from .index import FAISS_INDEX_MAP, FAISS_INDEX_MAP_LOCK
 
 
-def faiss_search(vecs: List[List[float]], k:int, index:Any) -> List[List[int]]:
+def faiss_search(vecs: List[List[float]], k: int, index: Any) -> List[List[int]]:
     _, ind = index.search(np.array(vecs, dtype="float32"), k)
     return ind.tolist()
 
@@ -28,19 +29,20 @@ class Handdler(FaissRpcServicer):
             workers = multiprocessing.cpu_count()
         self.aioexcutor = futures.ThreadPoolExecutor(max_workers=workers)
 
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        return asyncio.get_running_loop()
 
-    async def _search(self, query_vecs, k: int, target_index: str) -> List[List[int]]:
+    async def _search(self, query_vecs: List[Any], k: int, target_index: str) -> List[List[int]]:
         vecs = [i.elements for i in query_vecs]
         with FAISS_INDEX_MAP_LOCK.gen_rlock():
             index = FAISS_INDEX_MAP.get(target_index)
         if index:
-            fn = partial(faiss_search,vecs=vecs,k=k,index=index)
-            res = await loop.run_in_executor(self.aioexcutor, fn)
+            fn = partial(faiss_search, vecs=vecs, k=k, index=index)
+            res = await self.loop.run_in_executor(self.aioexcutor, fn)
             return res
         else:
-            raise AttributeError(f"index {index_key} not found")
-
-    
+            raise AttributeError(f"index {target_index} not found")
 
     async def search(self, request: Any, context: grpc.ServicerContext) -> Any:
         if request.k <= 0 or request.k > 30:
@@ -51,15 +53,15 @@ class Handdler(FaissRpcServicer):
             return Response(status=ResponseStatus(status=ResponseStatus.Stat.FAILED, message="query args must have  query_vec"))
         try:
             res = await self._search(
-                vecs=vecs,
+                target_index=request.target_index,
                 k=request.k,
-                query_vecs = [request.query_vec])
-            
+                query_vecs=[request.query_vec])
+
         except Exception as e:
             return Response(status=ResponseStatus(status=ResponseStatus.Stat.FAILED, message=str(e)))
         else:
             log.info("get result", res=res)
-            return Response(status=ResponseStatus(status=ResponseStatus.Stat.SUCCEED), result=[TopK(rank=i) for i in res])
+            return Response(status=ResponseStatus(status=ResponseStatus.Stat.SUCCEED), result=TopK(rank=res[0]))
 
     async def batch_search(self, request_iterator: Any, context: grpc.ServicerContext) -> Any:
         for request in request_iterator:
@@ -77,11 +79,11 @@ class Handdler(FaissRpcServicer):
                 continue
             try:
                 res = await self._search(
-                vecs=vecs,
-                k=request.k,
-                query_vecs = request.query_vecs)
+                    target_index=request.target_index,
+                    k=request.k,
+                    query_vecs=request.query_vecs)
             except Exception as e:
                 yield Response(status=ResponseStatus(status=ResponseStatus.Stat.FAILED, message=f"query {request.batch_id} get error {str(e)}"))
             else:
                 log.info("get result", res=res)
-                yield BatchResponse(status=ResponseStatus(status=ResponseStatus.Stat.SUCCEED), batch_id=request.batch_id,result=[TopK(rank=i) for i in res])
+                yield BatchResponse(status=ResponseStatus(status=ResponseStatus.Stat.SUCCEED), batch_id=request.batch_id, result=[TopK(rank=i) for i in res])

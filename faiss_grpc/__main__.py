@@ -5,8 +5,6 @@ from faiss_rpc.cli_example import cli_exp
 from make_index import make_index
 
 
-server(sys.argv[1:])
-
 def main() -> None:
     root = EntryPoint(name="faiss_grpc", description="faiss的grpc服务工具")
     root.regist_sub(Serv)
