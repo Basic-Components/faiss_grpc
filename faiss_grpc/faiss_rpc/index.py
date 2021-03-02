@@ -61,3 +61,7 @@ class UpdateIndexes(PatternMatchingEventHandler):
                 with FAISS_INDEX_MAP_LOCK.gen_wlock():
                     FAISS_INDEX_MAP[index_name] = index
                 log.info("load index ok", index_name=index_name)
+        except Exception as e:
+            log.error("UpdateIndexes get error", 
+                exc_info=True,
+                stack_info=True)

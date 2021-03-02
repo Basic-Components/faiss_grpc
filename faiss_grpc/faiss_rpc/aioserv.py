@@ -33,7 +33,6 @@ class Serv(EntryPoint):
     服务会监听index_dirs指定的目录,并接受指定目录中以`index`为后缀的文件的文件名保存的数据作为faiss的index文件导入.
     请求中的`target_index`字段需要与导入index的文件名去掉`index`后缀后的一致.
     """
-    _name="faiss_grpc"
     schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
