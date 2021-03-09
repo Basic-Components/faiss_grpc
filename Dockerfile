@@ -1,18 +1,12 @@
-FROM alpine:3.12.0 AS builder
-
-WORKDIR /workspace
-RUN apk --no-cache add git g++ cmake ninja libgomp openblas-dev
-COPY . .
-RUN git submodule update --init --recursive && \
-  rm -rf build && mkdir build && cd build && \
-  cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TEST=ON -GNinja && \
-  ninja
-RUN cd build && ./run-test
-
-FROM alpine:3.12.0
-LABEL maintainer="ScatterLab developers@scatterlab.co.kr"
-
-RUN apk --no-cache add libgcc libstdc++ libgomp openblas
-WORKDIR /
-COPY --from=builder /workspace/build/faiss-serving .
-ENTRYPOINT ["/faiss-serving", "--host=0.0.0.0"]
+# 使用upx压缩可执行文件
+FROM --platform=$TARGETPLATFORM debian:buster-slim as builder
+WORKDIR /code
+# 安装grpc
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+RUN apt update -y && \
+    apt install -y --no-install-recommends build-essential autoconf libtool pkg-config libprotobuf-dev libgrpc++-dev protobuf-compiler protobuf-compiler-grpc libspdlog-dev && \
+    rm -rf /var/lib/apt/lists/*
+COPY pbschema /code/pbschema
+COPY serv.cc /code/serv.cc
+COPY makefile /code/makefile
+RUN make

@@ -1,1 +1,0 @@
-docker buildx build --load --platform=linux/amd64 -f Dockerfile.amd64 -t hsz1273327/faiss_grpc:amd64-1.7.0 .
