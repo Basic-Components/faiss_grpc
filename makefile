@@ -18,19 +18,27 @@ HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++11
-CXXFLAGS += -I/usr/include
-ifeq ($(SYSTEM),Darwin)
-LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
-					 -pthread\
-           -lgrpc++_reflection\
-           -ldl
-else
+CXXFLAGS += -std=c++17
+# CXXFLAGS += -Iincludes
+# CXXFLAGS += -I/usr/include
+# CXXFLAGS += -Llibs
+# CXXFLAGS += -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas 
+
+
 LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -pthread\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
-           -ldl
-endif
+           -ldl\
+		   -lstdc++fs -lgomp -lopenblas -lpthread
+		   
+
+# FAISSLAGS = -I./src \
+# 			-L/usr/lib/x86_64-linux-gnu \
+# 			../faiss/libfaiss.a \
+# 		   /usr/lib/gcc/x86_64-linux-gnu/8/libgomp.so \
+# 		   /usr/lib/x86_64-linux-gnu/libpthread.so \
+# 		   /usr/lib/x86_64-linux-gnu/libopenblas.so \
+-lstdc++fs
 PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
@@ -41,9 +49,21 @@ vpath %.proto $(PROTOS_PATH)
 
 all: system-check faiss_rpc_server
 
+faiss_rpc_server: faiss_rpc.pb.o faiss_rpc.grpc.pb.o faiss_grpc_serv.o faiss_grpc.o
+	$(CXX) -Llibs $^ $(LDFLAGS) -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -o $@
 
-faiss_rpc_server: faiss_rpc.pb.o faiss_rpc.grpc.pb.o serv.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+#faiss_rpc_server: faiss_rpc.pb.cc faiss_rpc.grpc.pb.cc
+#	$(CXX) -std=c++17 -Llibs -Iincludes -I/usr/include faiss_grpc_serv.cc faiss_index_manager.cc faiss_grpc_serv.cc $^ `pkg-config --cflags protobuf grpc` -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -pthread -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed -ldl -o $@
+
+faiss_grpc_serv.o: faiss_grpc_serv.cc
+	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^ -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
+
+faiss_grpc.o: faiss_grpc.cc
+	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^ -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
+
+# faiss_grpc_serv.o:
+# 	$(CXX) -std=c++17 -Iincludes -I/usr/include faiss_grpc_serv.cc `pkg-config --cflags protobuf grpc` -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas  -c -o $@
+
 
 %.grpc.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
