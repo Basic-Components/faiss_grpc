@@ -19,7 +19,7 @@ SYSTEM ?= $(HOST_SYSTEM)
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
 CXXFLAGS += -std=c++17
-# CXXFLAGS += -Iincludes
+# CXXFLAGS +=  
 # CXXFLAGS += -I/usr/include
 # CXXFLAGS += -Llibs
 # CXXFLAGS += -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas 
@@ -50,16 +50,16 @@ vpath %.proto $(PROTOS_PATH)
 all: system-check faiss_rpc_server
 
 faiss_rpc_server: faiss_rpc.pb.o faiss_rpc.grpc.pb.o faiss_grpc_serv.o faiss_grpc.o
-	$(CXX) -Llibs $^ $(LDFLAGS) -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -o $@
+	$(CXX) -Llibs $^ $(LDFLAGS) -lfswatch -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -o $@
 
 #faiss_rpc_server: faiss_rpc.pb.cc faiss_rpc.grpc.pb.cc
 #	$(CXX) -std=c++17 -Llibs -Iincludes -I/usr/include faiss_grpc_serv.cc faiss_index_manager.cc faiss_grpc_serv.cc $^ `pkg-config --cflags protobuf grpc` -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -pthread -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed -ldl -o $@
 
 faiss_grpc_serv.o: faiss_grpc_serv.cc
-	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^ -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
+	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^  -lfswatch -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
 
 faiss_grpc.o: faiss_grpc.cc
-	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^ -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
+	$(CXX) -Iincludes -Llibs -std=c++17 `pkg-config --cflags protobuf grpc` $^  -lfswatch -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas -c -o $@
 
 # faiss_grpc_serv.o:
 # 	$(CXX) -std=c++17 -Iincludes -I/usr/include faiss_grpc_serv.cc `pkg-config --cflags protobuf grpc` -lfaiss -lstdc++fs -lgomp -lpthread -lopenblas  -c -o $@

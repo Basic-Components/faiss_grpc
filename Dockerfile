@@ -43,7 +43,7 @@ RUN rm -rf faiss-${FAISS_VERSION}
 # RUN apt update -y && \
 #     apt install -y --no-install-recommends build-essential autoconf libtool pkg-config && \
 #     apt install -y --no-install-recommends libopenblas-dev libblis-dev libblas-dev libssl-dev libfswatch-dev && \
-#     apt install -y --no-install-recommends libprotobuf-dev libgrpc++-dev protobuf-compiler protobuf-compiler-grpc libspdlog-dev && \
+#     apt install -y --no-install-recommends libprotobuf-dev libgrpc++-dev protobuf-compiler protobuf-compiler-grpc libspdlog-dev libfswatch-dev && \
 #     rm -rf /var/lib/apt/lists/*
 
 

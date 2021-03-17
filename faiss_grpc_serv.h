@@ -7,6 +7,7 @@
 #include <cmath>
 #include <map>
 #include <utility>
+#include <functional>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
@@ -24,6 +25,14 @@
 #include <faiss/index.h>
 #include <faiss/index_io.h>
 
+#include <libfswatch/c++/monitor_factory.hpp>
+#include <libfswatch/c++/monitor.hpp>
+#include <libfswatch/c++/event.hpp>
+#include <libfswatch/c/cevent.h>
+
+namespace faiss_grpc_fswatch_callback{
+    void fschangecallback(const std::vector<fsw::event> &evts, void *ctx);
+}
 namespace faiss_grpc_serv{
     class FaissGrpcConf {
         public:
