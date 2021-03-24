@@ -1,5 +1,0 @@
-grpcurl -d '{ \"target_index\": \"1231\",\"k\": 4,\"query_vec\": { \"elements\":[1.0,2.0,3.0] } }' -plaintext localhost:5000 hszofficial.faiss_rpc.FaissRpc/search
-
-grpcurl -plaintext -d '@' localhost:5000 hszofficial.faiss_rpc.FaissRpc/batch_search
-
-{ "batch_id": "12345", "target_index": "1231","k": 4,"query_vecs": [{ "elements":[1.0,2.0,3.0] }] }

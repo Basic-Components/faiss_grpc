@@ -1,37 +1,29 @@
 # faiss_grpc
 
-+ author: hsz
-+ author-email: hsz1273327@gmail.com
++ author: hsz12
++ author-email: 
 
-keywords: faiss, grpc
+
+
+keywords: 
 
 ## 特性
 
-+ 提供单条请求接口`search`
-+ 提供批处理流式接口`batch_search`
-+ 指定配置项`index_dirs`(默认执行目录下的`indexes`文件夹)后自动加载后缀为`.index`的faiss的index文件.
++ feature1
 
+## 安装
 
-## 依赖
+```bash
 
-+ linux系统(只在debian:buster中编译过)
-+ [faiss 1.7.0](https://github.com/facebookresearch/faiss) (下载后编译放到libs文件夹)
-+ [gabime/spdlog](https://github.com/gabime/spdlog) (下载后编译安装)
-+ [nlohmann/json](https://github.com/nlohmann/json#arbitrary-types-conversions) (下载后将头文件放至includes文件夹)
-+ [muellan/clipp](https://github.com/muellan/clipp) (下载后将头文件放至includes文件夹)
-
-## 编译
-
-根目录下执行`make`即可,会编译为可执行文件`faiss_rpc_server`
+```
 
 ## 使用
 
-可以编译好后使用,也可以通过docker使用.
++ `example`
 
-### 配置项
+    ```
+    ```
 
-### 读取配置
+## TODO
 
-+ 默认从执行目录下尝试读取`config.json`作为配置文件
-+
-
++ todo1:
