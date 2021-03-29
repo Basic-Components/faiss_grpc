@@ -23,14 +23,14 @@ RUN ./cmake-${BUILDARCH}.sh --skip-license --prefix=tools
 COPY src /code/src
 COPY thirdpart /code/thirdpart
 COPY CMakeLists.txt /code/CMakeLists.txt
-RUN ./tools/bin/cmake .
+RUN ./tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release .
 RUN make
 RUN mkdir upxbin
 RUN upx --best --lzma -o /code/upxbin/faiss_grpc /code/bin/faiss_grpc 
 
 # 部署
-#FROM --platform=$TARGETPLATFORM debian:buster-slim as bin
-FROM debian:buster-slim as bin
+#FROM --platform=$TARGETPLATFORM debian:buster-slim as faiss-grpc-cpu
+FROM debian:buster-slim as faiss-grpc-cpu
 # 安装依赖
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
 RUN apt update -y 

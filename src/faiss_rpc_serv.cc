@@ -51,7 +51,7 @@ using hszofficial::faiss_rpc::ResponseStatus_Stat;
 using hszofficial::faiss_rpc::ResponseStatus_Stat_FAILED;
 using hszofficial::faiss_rpc::ResponseStatus_Stat_SUCCEED;
 using hszofficial::faiss_rpc::TopK;
-
+using hszofficial::faiss_rpc::Vec;
 using json = nlohmann::json;
 
 using faiss::Index;
@@ -135,28 +135,8 @@ namespace faiss_index_manager
             }
             spdlog::info((json{{"event", "load_index end"}}).dump());
         }
-        //fschangecallback 监控文件系统的回调
         
 
-        // watchfs 监听文件系统变化
-        //@params std::vector< std::string > paths 要监听的文件系统路径
-        static monitor *watchfs(std::vector<std::string> paths)
-        {
-            monitor *active_monitor = monitor_factory::create_monitor(
-                fsw_monitor_type::system_default_monitor_type,
-                paths,
-                faiss_grpc_fswatch_callback::fschangecallback
-            );
-
-            // Configure the monitor
-            active_monitor->add_event_type_filter({Updated});
-            active_monitor->set_watch_access(false);
-
-            // Start the monitor
-            spdlog::info((json{{"event", "start watching fs"},{"path", paths}}).dump());
-            active_monitor->start();
-            return active_monitor;
-        }
         //search 查找指定index中与请求最相近的前k个向量id
         //@params std::string indexname index名
         //@params std::vector<std::vector<float>> query 查找的向量列表
@@ -204,7 +184,6 @@ namespace faiss_index_manager
             delete[] xq;
             return result;
         }
-
     private:
         std::map<std::string, std::unique_ptr<Index>> m;
         
@@ -618,6 +597,15 @@ namespace faiss_rpc_serv{
         {
             this->compression = "";
         }
+        try
+        {
+            j.at("index_dirs").get_to(this->index_dirs);
+        }
+        catch (std::exception &e)
+        {
+            this->index_dirs = {"./indexes"};
+        }
+        
     }
     //to_json 序列化对象为json
     json FAISS_RPCConf::to_json() const
@@ -640,7 +628,8 @@ namespace faiss_rpc_serv{
             {"keepalive_time", this->keepalive_time},
             {"keepalive_timeout", this->keepalive_timeout},
             {"keepalive_enforement_permit_without_stream", this->keepalive_enforement_permit_without_stream},
-            {"compression", this->compression}};
+            {"compression", this->compression},
+             {"index_dirs", this->index_dirs}};
         return j;
     }
     //RunServer 根据配置启动服务
@@ -674,10 +663,24 @@ namespace faiss_rpc_serv{
         FAISS_RPCServiceImpl service(this);
 
         //加载index
+        IndexManager &instance = IndexManager::get_instance();
         instance.load_index(this->index_dirs);
 
         //监听index变化
-        std::thread t(instance.watchfs, this->index_dirs);
+        monitor *active_monitor = monitor_factory::create_monitor(
+            fsw_monitor_type::poll_monitor_type,
+            this->index_dirs,
+            faiss_grpc_fswatch_callback::fschangecallback
+        );
+        // Configure the monitor
+        active_monitor->add_event_type_filter({Updated});
+        active_monitor->set_watch_access(false);
+
+        // Start the monitor 
+        std::thread t([&]() {
+            spdlog::info((json{{"event", "start watching fs"},{"path", this->index_dirs}}).dump());
+            active_monitor->start(); 
+            });
         t.detach();
         
         //配置grpc
@@ -782,6 +785,7 @@ namespace faiss_rpc_serv{
         // Wait for the server to shutdown. Note that some other thread must be
         // responsible for shutting down the server for this call to ever return.
         server->Wait();
+        active_monitor->stop();
     }
 
     void to_json(json &j, const faiss_rpc_serv::FAISS_RPCConf &p)

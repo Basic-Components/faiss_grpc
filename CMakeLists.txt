@@ -106,5 +106,6 @@ target_link_libraries(faiss_grpc
   PRIVATE protobuf::libprotobuf
   PRIVATE faiss
   PRIVATE stdc++fs
+  PRIVATE fswatch
 )
 

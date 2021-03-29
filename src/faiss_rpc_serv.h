@@ -31,7 +31,8 @@ namespace faiss_rpc_serv {
         bool keepalive_enforement_permit_without_stream = true;
         //compression
         std::string compression = "";
-
+        //业务逻辑
+        std::vector<std::string> index_dirs = {"./indexes"};
         FAISS_RPCConf() = default;
         FAISS_RPCConf(const nlohmann::json& j);
         nlohmann::json to_json() const;
