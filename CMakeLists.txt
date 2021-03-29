@@ -6,7 +6,6 @@ project (faiss_grpc
     LANGUAGES CXX
 )
 
-
 # grpc
 list(APPEND CMAKE_PREFIX_PATH "/opt/grpc" "/opt/protobuf")
 # Cmake find modules
@@ -17,7 +16,7 @@ include_directories(inc)
 find_package(Protobuf REQUIRED)
 find_package(GRPC REQUIRED)
 set(PROTOS
-    ${CMAKE_CURRENT_BINARY_DIR}/pbschema/square_rpc.proto
+    ${CMAKE_CURRENT_BINARY_DIR}/pbschema/faiss_rpc.proto
 )
 set(PROTO_SRC_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto-src)
 file(MAKE_DIRECTORY ${PROTO_SRC_DIR})
@@ -27,6 +26,18 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
 
 # # 下载外部依赖源码
+# ## faiss
+# include(FetchContent)
+# FetchContent_Declare(faiss
+#   GIT_REPOSITORY https://github.com/facebookresearch/faiss.git
+#   GIT_TAG        v1.7.0
+# )
+# FetchContent_GetProperties(faiss)
+# if(NOT faiss_POPULATED)
+#   FetchContent_Populate(faiss)
+#   add_subdirectory(${faiss_SOURCE_DIR} ${faiss_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+# ## json
 # include(FetchContent)
 # FetchContent_Declare(json
 #   GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -37,7 +48,7 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 #   FetchContent_Populate(json)
 #   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 # endif()
-
+# ## log
 # FetchContent_Declare(spdlog
 #   GIT_REPOSITORY https://github.com/gabime/spdlog.git
 #   GIT_TAG        v1.8.2
@@ -47,7 +58,7 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 #   FetchContent_Populate(spdlog)
 #   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
 # endif()
-
+# ## args
 # FetchContent_Declare(argparse
 #   GIT_REPOSITORY https://github.com/p-ranav/argparse.git
 #   GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
@@ -61,15 +72,17 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
 # 添加外部依赖(如果可以最好还是用上面的下载方式)
 
-# set(THIRD_PART
-#     ${CMAKE_CURRENT_BINARY_DIR}/thirdpart
-# )
-# # https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
-# add_subdirectory(${THIRD_PART}/nlohmann_json)
-# # https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
-# add_subdirectory(${THIRD_PART}/spdlog)
-# # https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
-# add_subdirectory(${THIRD_PART}/argparse)
+set(THIRD_PART
+    ${CMAKE_CURRENT_BINARY_DIR}/thirdpart
+)
+# https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
+add_subdirectory(${THIRD_PART}/faiss)
+# https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
+add_subdirectory(${THIRD_PART}/nlohmann_json)
+# https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
+add_subdirectory(${THIRD_PART}/spdlog)
+# https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
+add_subdirectory(${THIRD_PART}/argparse)
 
 # 编译
 add_compile_options(-std=c++17)
@@ -78,17 +91,20 @@ set(SRC_DIR
 )
 include_directories(${SRC_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+
 add_executable(faiss_grpc
     ${SRC_DIR}/faiss_grpc.cc
+    ${SRC_DIR}/faiss_rpc_serv.cc
     ${PROTO_SRCS}
     ${GRPC_SRCS}
 )
 target_link_libraries(faiss_grpc
-   PRIVATE nlohmann_json::nlohmann_json
-   PRIVATE spdlog::spdlog
-   PRIVATE argparse::argparse
-   PRIVATE gRPC::grpc++_reflection
-   PRIVATE protobuf::libprotobuf
-   #stdc++fs
+  PRIVATE nlohmann_json::nlohmann_json
+  PRIVATE spdlog::spdlog
+  PRIVATE argparse::argparse
+  PRIVATE gRPC::grpc++_reflection
+  PRIVATE protobuf::libprotobuf
+  PRIVATE faiss
+  PRIVATE stdc++fs
 )
 
