@@ -16,9 +16,9 @@ include_directories(inc)
 find_package(Protobuf REQUIRED)
 find_package(GRPC REQUIRED)
 set(PROTOS
-    ${CMAKE_CURRENT_BINARY_DIR}/pbschema/faiss_rpc.proto
+    ${CMAKE_CURRENT_LIST_DIR}/pbschema/faiss_rpc.proto
 )
-set(PROTO_SRC_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto-src)
+set(PROTO_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/proto-src)
 file(MAKE_DIRECTORY ${PROTO_SRC_DIR})
 include_directories(${PROTO_SRC_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS  ${PROTO_SRC_DIR} ${PROTOS})
@@ -73,10 +73,13 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 # 添加外部依赖(如果可以最好还是用上面的下载方式)
 
 set(THIRD_PART
-    ${CMAKE_CURRENT_BINARY_DIR}/thirdpart
+    ${CMAKE_CURRENT_LIST_DIR}/thirdpart
 )
 # https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
-add_subdirectory(${THIRD_PART}/faiss)
+add_subdirectory(${THIRD_PART}/faiss  ${CMAKE_CURRENT_LIST_DIR}/lib/faiss)
+# include_directories(
+#     ${THIRD_PART}/faiss/
+# )
 # https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
 add_subdirectory(${THIRD_PART}/nlohmann_json)
 # https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
@@ -87,11 +90,11 @@ add_subdirectory(${THIRD_PART}/argparse)
 # 编译
 add_compile_options(-std=c++17)
 set(SRC_DIR 
-    ${CMAKE_CURRENT_BINARY_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src
 )
 include_directories(${SRC_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+# include_directories(${CMAKE_CURRENT_LIST_DIR}/includes)
 add_executable(faiss_grpc
     ${SRC_DIR}/faiss_grpc.cc
     ${SRC_DIR}/faiss_rpc_serv.cc
@@ -105,7 +108,10 @@ target_link_libraries(faiss_grpc
   PRIVATE gRPC::grpc++_reflection
   PRIVATE protobuf::libprotobuf
   PRIVATE faiss
-  PRIVATE stdc++fs
   PRIVATE fswatch
+  PRIVATE stdc++fs
 )
+# target_include_directories(faiss_grpc
+#   PUBLIC ${CMAKE_CURRENT_LIST_DIR}/includes/faiss
+# )
 
