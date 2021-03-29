@@ -25,52 +25,68 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS  ${PROTO_SRC_DIR} ${PROTOS})
 grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
 
-# # 下载外部依赖源码
+# 下载外部依赖源码
+
+## json
+# include(FetchContent)
+# FetchContent_Declare(json
+# #   GIT_REPOSITORY https://github.com/nlohmann/json.git
+# #   GIT_TAG        v3.7.3
+# #   GIT_SHALLOW    TRUE
+#   TLS_VERIFY     FALSE
+#   URL  https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
+# )
+# # FetchContent_GetProperties(json)
+# # if(NOT json_POPULATED)
+# #   FetchContent_Populate(json)
+# #   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+# # endif()
+# FetchContent_MakeAvailable(json)
+# ## log
+# FetchContent_Declare(spdlog
+# #   GIT_REPOSITORY https://github.com/gabime/spdlog.git
+# #   GIT_TAG        v1.8.2
+# #   GIT_SHALLOW    TRUE
+#   TLS_VERIFY     FALSE
+#   URL  https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
+# )
+# # FetchContent_GetProperties(spdlog)
+# # if(NOT spdlog_POPULATED)
+# #   FetchContent_Populate(spdlog)
+# #   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
+# # endif()
+# FetchContent_MakeAvailable(spdlog)
+# ## args
+# FetchContent_Declare(argparse
+# #   GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+# #   GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
+# #   GIT_SHALLOW    TRUE
+#   TLS_VERIFY     FALSE
+#   URL  https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
+# )
+# # FetchContent_GetProperties(argparse)
+# # if(NOT argparse_POPULATED)
+# #   FetchContent_Populate(argparse)
+# #   add_subdirectory(${argparse_SOURCE_DIR} ${argparse_BINARY_DIR} EXCLUDE_FROM_ALL)
+# # endif()
+# FetchContent_MakeAvailable(argparse)
 # ## faiss
 # include(FetchContent)
 # FetchContent_Declare(faiss
-#   GIT_REPOSITORY https://github.com/facebookresearch/faiss.git
-#   GIT_TAG        v1.7.0
+# #   GIT_REPOSITORY https://github.com/facebookresearch/faiss.git
+# #   GIT_TAG        v1.7.0
+# #   GIT_SHALLOW    TRUE
+#   TLS_VERIFY     FALSE
+#   URL  https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
 # )
-# FetchContent_GetProperties(faiss)
-# if(NOT faiss_POPULATED)
-#   FetchContent_Populate(faiss)
-#   add_subdirectory(${faiss_SOURCE_DIR} ${faiss_BINARY_DIR} EXCLUDE_FROM_ALL)
-# endif()
-# ## json
-# include(FetchContent)
-# FetchContent_Declare(json
-#   GIT_REPOSITORY https://github.com/nlohmann/json.git
-#   GIT_TAG        v3.7.3
-# )
-# FetchContent_GetProperties(json)
-# if(NOT json_POPULATED)
-#   FetchContent_Populate(json)
-#   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
-# endif()
-# ## log
-# FetchContent_Declare(spdlog
-#   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-#   GIT_TAG        v1.8.2
-# )
-# FetchContent_GetProperties(spdlog)
-# if(NOT spdlog_POPULATED)
-#   FetchContent_Populate(spdlog)
-#   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
-# endif()
-# ## args
-# FetchContent_Declare(argparse
-#   GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-#   GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
-# )
-# FetchContent_GetProperties(argparse)
-# if(NOT argparse_POPULATED)
-#   FetchContent_Populate(argparse)
-#   add_subdirectory(${argparse_SOURCE_DIR} ${argparse_BINARY_DIR} EXCLUDE_FROM_ALL)
-# endif()
+# # FetchContent_GetProperties(faiss)
+# # if(NOT faiss_POPULATED)
+# #   FetchContent_Populate(faiss)
+# #   add_subdirectory(${faiss_SOURCE_DIR} ${faiss_BINARY_DIR} EXCLUDE_FROM_ALL)
+# # endif()
+# FetchContent_MakeAvailable(faiss)
 
-
-# 添加外部依赖(如果可以最好还是用上面的下载方式)
+添加外部依赖(如果可以最好还是用上面的下载方式)
 
 set(THIRD_PART
     ${CMAKE_CURRENT_LIST_DIR}/thirdpart
