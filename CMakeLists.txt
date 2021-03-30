@@ -26,64 +26,64 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
 
 # 下载外部依赖源码
-## json
-# include(FetchContent)
-# FetchContent_Declare(json
-# #   GIT_REPOSITORY https://github.com/nlohmann/json.git
-# #   GIT_TAG        v3.7.3
-# #   GIT_SHALLOW    TRUE
-#   TLS_VERIFY     FALSE
-#   URL  https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
-# )
-# # FetchContent_GetProperties(json)
-# # if(NOT json_POPULATED)
-# #   FetchContent_Populate(json)
-# #   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
-# # endif()
-# FetchContent_MakeAvailable(json)
-# ## log
-# FetchContent_Declare(spdlog
-# #   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-# #   GIT_TAG        v1.8.2
-# #   GIT_SHALLOW    TRUE
-#   TLS_VERIFY     FALSE
-#   URL  https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
-# )
-# # FetchContent_GetProperties(spdlog)
-# # if(NOT spdlog_POPULATED)
-# #   FetchContent_Populate(spdlog)
-# #   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
-# # endif()
-# FetchContent_MakeAvailable(spdlog)
-# ## args
-# FetchContent_Declare(argparse
-# #   GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-# #   GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
-# #   GIT_SHALLOW    TRUE
-#   TLS_VERIFY     FALSE
-#   URL  https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
-# )
-# # FetchContent_GetProperties(argparse)
-# # if(NOT argparse_POPULATED)
-# #   FetchContent_Populate(argparse)
-# #   add_subdirectory(${argparse_SOURCE_DIR} ${argparse_BINARY_DIR} EXCLUDE_FROM_ALL)
-# # endif()
-# FetchContent_MakeAvailable(argparse)
-# ## faiss
-# include(FetchContent)
-# FetchContent_Declare(faiss
-# #   GIT_REPOSITORY https://github.com/facebookresearch/faiss.git
-# #   GIT_TAG        v1.7.0
-# #   GIT_SHALLOW    TRUE
-#   TLS_VERIFY     FALSE
-#   URL  https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
-# )
-# # FetchContent_GetProperties(faiss)
-# # if(NOT faiss_POPULATED)
-# #   FetchContent_Populate(faiss)
-# #   add_subdirectory(${faiss_SOURCE_DIR} ${faiss_BINARY_DIR} EXCLUDE_FROM_ALL)
-# # endif()
-# FetchContent_MakeAvailable(faiss)
+# json
+include(FetchContent)
+FetchContent_Declare(json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG        v3.7.3
+  GIT_SHALLOW    TRUE
+  TLS_VERIFY     FALSE
+  # URL  https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
+)
+# FetchContent_GetProperties(json)
+# if(NOT json_POPULATED)
+#   FetchContent_Populate(json)
+#   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+FetchContent_MakeAvailable(json)
+## log
+FetchContent_Declare(spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG        v1.8.2
+  GIT_SHALLOW    TRUE
+  TLS_VERIFY     FALSE
+  # URL  https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
+)
+# FetchContent_GetProperties(spdlog)
+# if(NOT spdlog_POPULATED)
+#   FetchContent_Populate(spdlog)
+#   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+FetchContent_MakeAvailable(spdlog)
+## args
+FetchContent_Declare(argparse
+  GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+  GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
+  GIT_SHALLOW    TRUE
+  TLS_VERIFY     FALSE
+  # URL  https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
+)
+# FetchContent_GetProperties(argparse)
+# if(NOT argparse_POPULATED)
+#   FetchContent_Populate(argparse)
+#   add_subdirectory(${argparse_SOURCE_DIR} ${argparse_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+FetchContent_MakeAvailable(argparse)
+## faiss
+include(FetchContent)
+FetchContent_Declare(faiss
+  GIT_REPOSITORY https://github.com/facebookresearch/faiss.git
+  GIT_TAG        v1.7.0
+  GIT_SHALLOW    TRUE
+  TLS_VERIFY     FALSE
+  # URL  https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
+)
+# FetchContent_GetProperties(faiss)
+# if(NOT faiss_POPULATED)
+#   FetchContent_Populate(faiss)
+#   add_subdirectory(${faiss_SOURCE_DIR} ${faiss_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+FetchContent_MakeAvailable(faiss)
 
 #添加外部依赖(如果可以最好还是用上面的下载方式)
 
@@ -113,34 +113,33 @@ add_executable(faiss_grpc
     ${PROTO_SRCS}
     ${GRPC_SRCS}
 )
-# 引入omp
-# find_package(OpenMP)
-# 引入faiss
-# Find gRPC include directory
-find_path(FAISS_INCLUDE_DIR NAMES faiss
-    /usr/local/include/faiss
-)
-if (FAISS_INCLUDE_DIR-NOTFOUND)
-    message(FATAL_ERROR "找不到faiss的头文件位置")
-endif()
-message(NOTICE "faiss的头文件位置${FAISS_INCLUDE_DIR}")
-mark_as_advanced(FAISS_INCLUDE_DIR)
+# # 如果本地自己编译faiss
+# # 引入faiss
+# # Find gRPC include directory
+# find_path(FAISS_INCLUDE_DIR NAMES faiss
+#     /usr/local/include/faiss
+# )
+# if (FAISS_INCLUDE_DIR-NOTFOUND)
+#     message(FATAL_ERROR "找不到faiss的头文件位置")
+# endif()
+# message(NOTICE "faiss的头文件位置${FAISS_INCLUDE_DIR}")
+# mark_as_advanced(FAISS_INCLUDE_DIR)
 
-find_library(FAISS_LIBRARY NAMES libfaiss.a 
-    PATHS /usr/local/lib
-    REQUIRED
-)
-if (FAISS_LIBRARY-NOTFOUND)
-    message(FATAL_ERROR "找不到faiss的库文件位置")
-endif()
-message(NOTICE "faiss的库文件位置${FAISS_LIBRARY}")
-mark_as_advanced(FAISS_LIBRARY)
-add_library(faiss::libfaiss UNKNOWN IMPORTED)
-set_target_properties(faiss::libfaiss PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES ${FAISS_INCLUDE_DIR}
-    INTERFACE_LINK_LIBRARIES "-lgomp;-lopenblas;-lpthread"
-    IMPORTED_LOCATION ${FAISS_LIBRARY}
-)
+# find_library(FAISS_LIBRARY NAMES libfaiss.a 
+#     PATHS /usr/local/lib
+#     REQUIRED
+# )
+# if (FAISS_LIBRARY-NOTFOUND)
+#     message(FATAL_ERROR "找不到faiss的库文件位置")
+# endif()
+# message(NOTICE "faiss的库文件位置${FAISS_LIBRARY}")
+# mark_as_advanced(FAISS_LIBRARY)
+# add_library(faiss::libfaiss UNKNOWN IMPORTED)
+# set_target_properties(faiss::libfaiss PROPERTIES
+#     INTERFACE_INCLUDE_DIRECTORIES ${FAISS_INCLUDE_DIR}
+#     INTERFACE_LINK_LIBRARIES "-lgomp;-lopenblas;-lpthread"
+#     IMPORTED_LOCATION ${FAISS_LIBRARY}
+# )
 
 target_link_libraries(faiss_grpc
 PRIVATE nlohmann_json::nlohmann_json
@@ -148,7 +147,8 @@ PRIVATE spdlog::spdlog
 PRIVATE argparse::argparse
 PRIVATE gRPC::grpc++_reflection
 PRIVATE protobuf::libprotobuf
-PRIVATE faiss:libfaiss
+# PRIVATE faiss:libfaiss
+PRIVATE faiss
 PRIVATE fswatch
 PRIVATE stdc++fs
 #PRIVATE OpenMP::OpenMP_CXX

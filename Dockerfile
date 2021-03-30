@@ -8,7 +8,7 @@ WORKDIR /code
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
 RUN apt update -y 
 ## 编译环境依赖
-RUN apt install -y --no-install-recommends build-essential autoconf libtool pkg-config upx-ucl libssl-dev git curl
+RUN apt install -y --no-install-recommends build-essential autoconf libtool pkg-config upx-ucl libssl-dev git curl ca-certificates
 ## faiss 编译和执行依赖
 RUN apt install -y --no-install-recommends libopenblas-dev
 ## grpc服务执行依赖
@@ -23,18 +23,18 @@ RUN ./cmake-${BUILDARCH}.sh --skip-license --prefix=tools
 
 # 其他第三方依赖根据网络情况选择安装方式,需要修改CMakeLists.txt
 COPY cmake/ /code/cmake/
-COPY inc /code/inc
+# COPY inc /code/inc
 COPY pbschema/ /code/pbschema/
 COPY src/ /code/src/
-COPY thirdpart/ /code/thirdpart/
+# COPY thirdpart/ /code/thirdpart/
 COPY CMakeLists.txt /code/CMakeLists.txt
 # 安装cmake无法管理的依赖
-# faiss
-WORKDIR /code/thirdpart/faiss-1.7.0
-RUN /code/tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -B build .
-RUN make -C build -j faiss
-RUN make -C build install
-WORKDIR /code
+# 如果cmake无法下载则需要自己安装faiss
+# WORKDIR /code/thirdpart/faiss-1.7.0
+# RUN /code/tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -B build .
+# RUN make -C build -j faiss
+# RUN make -C build install
+# WORKDIR /code
 
 FROM build-faiss as build-cpu
 # 编译项目
