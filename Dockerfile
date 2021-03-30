@@ -26,7 +26,7 @@ COPY cmake/ /code/cmake/
 # COPY inc /code/inc
 COPY pbschema/ /code/pbschema/
 COPY src/ /code/src/
-# COPY thirdpart/ /code/thirdpart/
+COPY thirdpart/ /code/thirdpart/
 COPY CMakeLists.txt /code/CMakeLists.txt
 # 安装cmake无法管理的依赖
 # 如果cmake无法下载则需要自己安装faiss
@@ -38,7 +38,7 @@ COPY CMakeLists.txt /code/CMakeLists.txt
 
 FROM build-faiss as build-cpu
 # 编译项目
-RUN ./tools/bin/cmake .
+RUN ./tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release .
 RUN make VERBOSE=1
 # 压缩可执行文件
 RUN mkdir upxbin

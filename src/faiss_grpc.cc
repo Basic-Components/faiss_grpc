@@ -5,7 +5,7 @@
 #include <fstream>
 #include <exception>
 #include "nlohmann/json.hpp"
-#include "argparse/argparse.hpp"
+#include <argparse.hpp>
 #include "faiss_rpc_serv.h"
 
 using faiss_rpc_serv::FAISS_RPCConf;
