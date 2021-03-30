@@ -2,6 +2,8 @@
 #define FAISS_RPC_SERV__INCLUDED
 #include <string>
 #include "nlohmann/json.hpp"
+#include <faiss/index.h>
+#include <faiss/index_io.h>
 
 namespace faiss_rpc_serv {
 

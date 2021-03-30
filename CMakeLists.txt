@@ -26,7 +26,6 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
 
 # 下载外部依赖源码
-
 ## json
 # include(FetchContent)
 # FetchContent_Declare(json
@@ -86,16 +85,13 @@ grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 # # endif()
 # FetchContent_MakeAvailable(faiss)
 
-添加外部依赖(如果可以最好还是用上面的下载方式)
+#添加外部依赖(如果可以最好还是用上面的下载方式)
 
 set(THIRD_PART
     ${CMAKE_CURRENT_LIST_DIR}/thirdpart
 )
-# https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
-add_subdirectory(${THIRD_PART}/faiss  ${CMAKE_CURRENT_LIST_DIR}/lib/faiss)
-# include_directories(
-#     ${THIRD_PART}/faiss/
-# )
+# # https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
+# add_subdirectory(${THIRD_PART}/faiss  ${CMAKE_CURRENT_LIST_DIR}/lib/faiss)
 # https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
 add_subdirectory(${THIRD_PART}/nlohmann_json)
 # https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
@@ -103,31 +99,60 @@ add_subdirectory(${THIRD_PART}/spdlog)
 # https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
 add_subdirectory(${THIRD_PART}/argparse)
 
+
 # 编译
+include_directories(${PROTO_SRC_DIR})
 add_compile_options(-std=c++17)
 set(SRC_DIR 
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 include_directories(${SRC_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
-# include_directories(${CMAKE_CURRENT_LIST_DIR}/includes)
 add_executable(faiss_grpc
     ${SRC_DIR}/faiss_grpc.cc
     ${SRC_DIR}/faiss_rpc_serv.cc
     ${PROTO_SRCS}
     ${GRPC_SRCS}
 )
-target_link_libraries(faiss_grpc
-  PRIVATE nlohmann_json::nlohmann_json
-  PRIVATE spdlog::spdlog
-  PRIVATE argparse::argparse
-  PRIVATE gRPC::grpc++_reflection
-  PRIVATE protobuf::libprotobuf
-  PRIVATE faiss
-  PRIVATE fswatch
-  PRIVATE stdc++fs
+# 引入omp
+# find_package(OpenMP)
+# 引入faiss
+# Find gRPC include directory
+find_path(FAISS_INCLUDE_DIR NAMES faiss
+    /usr/local/include/faiss
 )
-# target_include_directories(faiss_grpc
-#   PUBLIC ${CMAKE_CURRENT_LIST_DIR}/includes/faiss
-# )
+if (FAISS_INCLUDE_DIR-NOTFOUND)
+    message(FATAL_ERROR "找不到faiss的头文件位置")
+endif()
+message(NOTICE "faiss的头文件位置${FAISS_INCLUDE_DIR}")
+mark_as_advanced(FAISS_INCLUDE_DIR)
+
+find_library(FAISS_LIBRARY NAMES libfaiss.a 
+    PATHS /usr/local/lib
+    REQUIRED
+)
+if (FAISS_LIBRARY-NOTFOUND)
+    message(FATAL_ERROR "找不到faiss的库文件位置")
+endif()
+message(NOTICE "faiss的库文件位置${FAISS_LIBRARY}")
+mark_as_advanced(FAISS_LIBRARY)
+add_library(faiss::libfaiss UNKNOWN IMPORTED)
+set_target_properties(faiss::libfaiss PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ${FAISS_INCLUDE_DIR}
+    INTERFACE_LINK_LIBRARIES "-lgomp;-lopenblas;-lpthread"
+    IMPORTED_LOCATION ${FAISS_LIBRARY}
+)
+
+target_link_libraries(faiss_grpc
+PRIVATE nlohmann_json::nlohmann_json
+PRIVATE spdlog::spdlog
+PRIVATE argparse::argparse
+PRIVATE gRPC::grpc++_reflection
+PRIVATE protobuf::libprotobuf
+PRIVATE faiss:libfaiss
+PRIVATE fswatch
+PRIVATE stdc++fs
+#PRIVATE OpenMP::OpenMP_CXX
+)
+
 
