@@ -101,7 +101,6 @@ add_subdirectory(${THIRD_PART}/argparse)
 
 
 # 编译
-include_directories(${PROTO_SRC_DIR})
 add_compile_options(-std=c++17)
 set(SRC_DIR 
     ${CMAKE_CURRENT_LIST_DIR}/src
