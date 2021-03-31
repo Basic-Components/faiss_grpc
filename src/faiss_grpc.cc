@@ -5,39 +5,58 @@
 #include <fstream>
 #include <exception>
 #include "nlohmann/json.hpp"
-#include <argparse.hpp>
+#include <argparse/argparse.hpp>
 #include "faiss_rpc_serv.h"
 
 using faiss_rpc_serv::FAISS_RPCConf;
 using json = nlohmann::json;
 
+std::vector<std::string>split(const std::string& str, const std::string& delims = ","){
+    std::vector<std::string> output;
+    auto first = std::cbegin(str);
+
+    while (first != std::cend(str))
+    {
+        const auto second = std::find_first_of(first, std::cend(str), 
+                  std::cbegin(delims), std::cend(delims));
+
+        if (first != second)
+            output.emplace_back(first, second);
+
+        if (second == std::cend(str))
+            break;
+
+        first = std::next(second);
+    }
+    return output;
+}
 void get_conf_from_env(FAISS_RPCConf* conf){
-    if (const char* env_app_name = std::getenv("FAISS_RPC_APP_NAME")) {
+    if (const char* env_app_name = std::getenv("FAISS_GRPC_APP_NAME")) {
         conf->app_name = env_app_name;
     }
-    if (const char* env_app_version = std::getenv("FAISS_RPC_APP_VERSION")) {
+    if (const char* env_app_version = std::getenv("FAISS_GRPC_APP_VERSION")) {
         conf->app_version = env_app_version;
     }
-    if (const char* env_address = std::getenv("FAISS_RPC_ADDRESS")) {
+    if (const char* env_address = std::getenv("FAISS_GRPC_ADDRESS")) {
         conf->address = env_address;
     }
-    if (const char* env_server_cert_path = std::getenv("FAISS_RPC_SERVER_CERT_PATH")) {
+    if (const char* env_server_cert_path = std::getenv("FAISS_GRPC_SERVER_CERT_PATH")) {
         conf->server_cert_path = env_server_cert_path;
     }
-    if (const char* env_server_key_path = std::getenv("FAISS_RPC_SERVER_KEY_PATH")) {
+    if (const char* env_server_key_path = std::getenv("FAISS_GRPC_SERVER_KEY_PATH")) {
         conf->server_key_path = env_server_key_path;
     }
-    if (const char* env_root_cert_path = std::getenv("FAISS_RPC_ROOT_CERT_PATH")) {
+    if (const char* env_root_cert_path = std::getenv("FAISS_GRPC_ROOT_CERT_PATH")) {
         conf->root_cert_path = env_root_cert_path;
     }
-    if (const char* env_client_certificate_request = std::getenv("FAISS_RPC_CLIENT_CERT_REQUEST")) {
+    if (const char* env_client_certificate_request = std::getenv("FAISS_GRPC_CLIENT_CERT_REQUEST")) {
       std::vector<std::string> choices = {"not_request","not_verify","request_and_verify","enforce_request","enforce_request_and_verify"};
       if (std::find(choices.begin(), choices.end(), env_client_certificate_request) != choices.end()) {
           conf->client_certificate_request = env_client_certificate_request;
       }
     }
 
-    if (const char* env_max_rec_msg_size = std::getenv("FAISS_RPC_MAX_REC_MSG_SIZE")) {
+    if (const char* env_max_rec_msg_size = std::getenv("FAISS_GRPC_MAX_REC_MSG_SIZE")) {
         try {
             auto max_rec_msg_size = std::stoi(env_max_rec_msg_size);
             conf->max_rec_msg_size = max_rec_msg_size;
@@ -45,7 +64,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_rec_msg_size from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_max_send_msg_size = std::getenv("FAISS_RPC_MAX_SEND_MSG_SIZE")) {
+    if (const char* env_max_send_msg_size = std::getenv("FAISS_GRPC_MAX_SEND_MSG_SIZE")) {
         try {
             auto max_send_msg_size = std::stoi(env_max_send_msg_size);
             conf->max_send_msg_size = max_send_msg_size;
@@ -53,7 +72,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_send_msg_size from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_max_concurrent_streams = std::getenv("FAISS_RPC_MAX_CONCURRENT_STREAMS")) {
+    if (const char* env_max_concurrent_streams = std::getenv("FAISS_GRPC_MAX_CONCURRENT_STREAMS")) {
         try {
             auto max_concurrent_streams = std::stoi(env_max_concurrent_streams);
             conf->max_concurrent_streams = max_concurrent_streams;
@@ -61,7 +80,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_concurrent_streams from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_max_connection_idle = std::getenv("FAISS_RPC_MAX_CONNECTION_IDLE")) {
+    if (const char* env_max_connection_idle = std::getenv("FAISS_GRPC_MAX_CONNECTION_IDLE")) {
         try {
             auto max_connection_idle = std::stoi(env_max_connection_idle);
             conf->max_connection_idle = max_connection_idle;
@@ -69,7 +88,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_connection_idle from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_max_connection_age = std::getenv("FAISS_RPC_MAX_CONNECTION_AGE")) {
+    if (const char* env_max_connection_age = std::getenv("FAISS_GRPC_MAX_CONNECTION_AGE")) {
         try {
             auto max_connection_age = std::stoi(env_max_connection_age);
             conf->max_connection_age = max_connection_age;
@@ -77,7 +96,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_connection_age from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_max_connection_age_grace = std::getenv("FAISS_RPC_MAX_CONNECTION_AGE_GRACE")) {
+    if (const char* env_max_connection_age_grace = std::getenv("FAISS_GRPC_MAX_CONNECTION_AGE_GRACE")) {
         try {
             auto max_connection_age_grace = std::stoi(env_max_connection_age_grace);
             conf->max_connection_age_grace = max_connection_age_grace;
@@ -85,7 +104,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config max_connection_age_grace from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_keepalive_time = std::getenv("FAISS_RPC_KEEPALIVE_TIME")) {
+    if (const char* env_keepalive_time = std::getenv("FAISS_GRPC_KEEPALIVE_TIME")) {
         try {
             auto keepalive_time = std::stoi(env_keepalive_time);
             conf->keepalive_time = keepalive_time;
@@ -93,7 +112,7 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config keepalive_time from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_keepalive_timeout = std::getenv("FAISS_RPC_KEEPALIVE_TIMEOUT")) {
+    if (const char* env_keepalive_timeout = std::getenv("FAISS_GRPC_KEEPALIVE_TIMEOUT")) {
         try {
             auto keepalive_timeout = std::stoi(env_keepalive_timeout);
             conf->keepalive_timeout = keepalive_timeout;
@@ -101,28 +120,33 @@ void get_conf_from_env(FAISS_RPCConf* conf){
             std::cout<< "get config keepalive_timeout from env error: " << err.what() << std::endl;
         } 
     }
-    if (const char* env_keepalive_enforement_permit_without_stream = std::getenv("FAISS_RPC_KEEPALIVE_ENFORCEMENT_PERMIT_WITHOUT_STREAM")) {
+    if (const char* env_keepalive_enforement_permit_without_stream = std::getenv("FAISS_GRPC_KEEPALIVE_ENFORCEMENT_PERMIT_WITHOUT_STREAM")) {
         std::vector<std::string> choices = {"TRUE", "true", "True", "1"};
         if (std::find(choices.begin(), choices.end(), env_keepalive_enforement_permit_without_stream) != choices.end()) {
             conf->keepalive_enforement_permit_without_stream = true;
         }
     }
 
-    if (const char* env_log_level = std::getenv("FAISS_RPC_LOG_LEVEL")) {
+    if (const char* env_log_level = std::getenv("FAISS_GRPC_LOG_LEVEL")) {
         std::vector<std::string> choices = {"trace", "debug", "info", "warn", "err", "critical"};
         if (std::find(choices.begin(), choices.end(), env_log_level) != choices.end()) {
             conf->log_level = env_log_level;
         }
     }
 
-    if (const char* env_compression = std::getenv("FAISS_RPC_COMPRESSION")) {
+    if (const char* env_compression = std::getenv("FAISS_GRPC_COMPRESSION")) {
         std::vector<std::string> choices = {"deflate", "gzip"};
         if (std::find(choices.begin(), choices.end(), env_compression) != choices.end()) {
             conf->compression = env_compression;
         }
     }
+    if (const char* env_index_dirs = std::getenv("FAISS_GRPC_INDEX_DIRS")) {
+       conf->index_dirs = split(env_index_dirs,",");
+    }
     
 }
+
+
 
 void get_conf_from_cmd(FAISS_RPCConf* conf,int argc, char** argv){
     argparse::ArgumentParser program("faiss_rpc","0.0.0");
@@ -268,6 +292,12 @@ void get_conf_from_cmd(FAISS_RPCConf* conf,int argc, char** argv){
         if (std::find(choices.begin(), choices.end(), value) != choices.end()) {
           conf->compression = value;
         }
+        return value;
+        });
+    program.add_argument("--index_dirs")
+      .help("指定监听的目录,以`,`分割")
+      .action([&](const std::string& value) { 
+        conf->index_dirs = split(value,",");
         return value;
         });
 

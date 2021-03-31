@@ -24,7 +24,7 @@
 #include "faiss_rpc.grpc.pb.h"
 
 
-#include <faiss/index.h>
+#include <faiss/Index.h>
 #include <faiss/index_io.h>
 #include <libfswatch/c++/monitor_factory.hpp>
 #include <libfswatch/c++/monitor.hpp>

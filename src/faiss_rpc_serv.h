@@ -2,15 +2,13 @@
 #define FAISS_RPC_SERV__INCLUDED
 #include <string>
 #include "nlohmann/json.hpp"
-#include <faiss/index.h>
-#include <faiss/index_io.h>
 
 namespace faiss_rpc_serv {
 
     class FAISS_RPCConf {
         public:
         std::string app_version = "0.0.0";
-        std::string app_name = "faiss_rpc";
+        std::string app_name = "faiss_grpc";
         std::string address = "0.0.0.0:5000";
         std::string log_level = "debug";
         //tls
