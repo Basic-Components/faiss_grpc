@@ -31,7 +31,7 @@ COPY CMakeLists.txt /code/CMakeLists.txt
 # 安装cmake无法管理的依赖
 # 安装faiss
 WORKDIR /code/thirdpart/faiss-1.7.0
-RUN /code/tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -B build .
+RUN /code/tools/bin/cmake -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFAISS_OPT_LEVEL=generic -B build .
 RUN make -C build -j4 faiss
 RUN make -C build install
 WORKDIR /code
