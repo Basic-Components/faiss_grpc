@@ -23,7 +23,6 @@ RUN ./cmake-${TARGETARCH}.sh --skip-license --prefix=tools
 
 # 其他第三方依赖根据网络情况选择安装方式,需要修改CMakeLists.txt
 COPY cmake/ /code/cmake/
-# COPY inc /code/inc
 COPY pbschema/ /code/pbschema/
 COPY src/ /code/src/
 # COPY thirdpart/ /code/thirdpart/
