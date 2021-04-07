@@ -23,39 +23,6 @@ include_directories(${PROTO_SRC_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS  ${PROTO_SRC_DIR} ${PROTOS})
 grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
-
-# 下载外部依赖源码
-message(NOTICE "下载外部依赖")
-include(FetchContent)
-# json
-message(NOTICE "下载nlohmann/json")
-FetchContent_Declare(json
-  TLS_VERIFY     FALSE
-  URL  https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
-)
-FetchContent_MakeAvailable(json)
-## log
-message(NOTICE "下载spdlog")
-FetchContent_Declare(spdlog
-  TLS_VERIFY     FALSE
-  URL  https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
-)
-FetchContent_MakeAvailable(spdlog)
-## args
-message(NOTICE "下载argparse")
-FetchContent_Declare(argparse
-  GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-  GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
-  GIT_SHALLOW    TRUE
-  TLS_VERIFY     FALSE
-)
-FetchContent_GetProperties(argparse)
-if(NOT argparse_POPULATED)
-  FetchContent_Populate(argparse)
-  add_subdirectory(${argparse_SOURCE_DIR} ${argparse_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-FetchContent_MakeAvailable(argparse)
-
 #添加外部依赖(如果可以最好还是用上面的下载方式)
 set(THIRD_PART
     ${CMAKE_CURRENT_LIST_DIR}/thirdpart
@@ -71,12 +38,10 @@ message(NOTICE "安装spdlog")
 add_subdirectory(${THIRD_PART}/argparse)
 message(NOTICE "安装argparse")
 
-
 find_package(Faiss REQUIRED)
 if (Faiss-NOTFOUND)
     message(FATAL_ERROR "找不到Faiss")
 endif()
-message(NOTICE "faiss位置${Faiss}")
 include_directories(${FAISS_FAISS_INCLUDE_DIR})
 
 # 编译
@@ -93,9 +58,7 @@ add_executable(faiss_grpc
     ${PROTO_SRCS}
     ${GRPC_SRCS}
 )
-# 如果本地自己编译faiss
 
-# message(FATAL_ERROR "faiss::libfaiss ${faiss::libfaiss}")
 target_link_libraries(faiss_grpc
 PRIVATE nlohmann_json::nlohmann_json
 PRIVATE argparse::argparse

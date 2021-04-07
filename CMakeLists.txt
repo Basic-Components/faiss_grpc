@@ -23,52 +23,72 @@ include_directories(${PROTO_SRC_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS  ${PROTO_SRC_DIR} ${PROTOS})
 grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_SRC_DIR} ${PROTOS})
 
-#添加外部依赖(如果可以最好还是用上面的下载方式)
-set(THIRD_PART
-    ${CMAKE_CURRENT_LIST_DIR}/thirdpart
-)
 
-# https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
-add_subdirectory(${THIRD_PART}/nlohmann_json)
+# 下载外部依赖源码
+message(NOTICE "下载外部依赖")
+include(FetchContent)
+# json
 message(NOTICE "下载nlohmann/json")
-# https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
-add_subdirectory(${THIRD_PART}/spdlog)
-message(NOTICE "安装spdlog")
-# https://github.com/p-ranav/argparse/archive/refs/tags/v2.0.tar.gz
-add_subdirectory(${THIRD_PART}/argparse)
-message(NOTICE "安装argparse")
+FetchContent_Declare(json
+  TLS_VERIFY     FALSE
+  URL  https://github.com/nlohmann/json/archive/v3.9.1.tar.gz
+)
+FetchContent_MakeAvailable(json)
+## log
+message(NOTICE "下载spdlog")
+FetchContent_Declare(spdlog
+  TLS_VERIFY     FALSE
+  URL  https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz
+)
+FetchContent_MakeAvailable(spdlog)
+## args
+message(NOTICE "下载argparse")
+FetchContent_Declare(argparse
+  # GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+  # GIT_TAG        9903a22904fed8176c4a1f69c4b691304b23c78e
+  # GIT_SHALLOW    TRUE
+  URL  https://github.com/p-ranav/argparse/archive/refs/heads/master.zip
+  TLS_VERIFY     FALSE
+)
+FetchContent_MakeAvailable(argparse)
 
-find_package(Faiss REQUIRED)
-if (Faiss-NOTFOUND)
-    message(FATAL_ERROR "找不到Faiss")
-endif()
-include_directories(${FAISS_FAISS_INCLUDE_DIR})
+message(NOTICE "下载faiss")
+FetchContent_Declare(Faiss
+  URL  https://github.com/facebookresearch/faiss/archive/refs/tags/v1.7.0.tar.gz
+  TLS_VERIFY     FALSE
+)
+FetchContent_MakeAvailable(Faiss)
+
+add_library(faiss::faiss ALIAS faiss)
 
 # 编译
 message(NOTICE "开始编译")
-add_compile_options(-std=c++17)
-set(SRC_DIR 
-    ${CMAKE_CURRENT_LIST_DIR}/src
-)
-include_directories(${SRC_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
-add_executable(faiss_grpc
+set(SRC_DIR  ${CMAKE_CURRENT_LIST_DIR}/src)
+add_executable(${PROJECT_NAME}
     ${SRC_DIR}/faiss_grpc.cc
     ${SRC_DIR}/faiss_rpc_serv.cc
     ${PROTO_SRCS}
     ${GRPC_SRCS}
 )
-
-target_link_libraries(faiss_grpc
-PRIVATE nlohmann_json::nlohmann_json
-PRIVATE argparse::argparse
-PRIVATE nlohmann_json::nlohmann_json
-PRIVATE spdlog::spdlog
-PRIVATE gRPC::grpc++_reflection
-PRIVATE protobuf::libprotobuf
-PRIVATE faiss::libfaiss
-PRIVATE fswatch
-PRIVATE stdc++fs
+target_compile_options(${PROJECT_NAME} 
+    PRIVATE "-std=c++17"
+)
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin
+)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${SRC_DIR}
+)
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE nlohmann_json::nlohmann_json
+  PRIVATE argparse::argparse
+  PRIVATE nlohmann_json::nlohmann_json
+  PRIVATE spdlog::spdlog
+  PRIVATE gRPC::grpc++_reflection
+  PRIVATE protobuf::libprotobuf
+  PRIVATE faiss::faiss
+  PRIVATE fswatch
+  PRIVATE stdc++fs
 )
 
 
