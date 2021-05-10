@@ -1,0 +1,28 @@
+version: '2.4'
+x-log: &id001
+  driver: json-file
+  options:
+    max-siz: 10m
+    max-file: '3'
+services:
+  faiss_grpc:
+    build:
+      context: .
+    logging:
+      <<: *id001
+    networks:
+    - inline
+    environment:
+      a: '1'
+    cpus: '0.5'
+    mem_limit: 256m
+    mem_reservation: 64m
+    restart: on-failure
+  redis:
+    image: redis:latest
+    mem_limit: 500m
+    restart: on-failure
+    ports:
+    - 6379:6379
+networks:
+  inline: 

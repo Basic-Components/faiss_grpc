@@ -5,7 +5,9 @@ option go_package = "hszofficial_faiss_rpc";
 service FAISS_RPC {
     rpc search (Query) returns (Response){}
     rpc batch_search (stream BatchQuery) returns (stream BatchResponse){}
+    // rpc get_index_metadata(MetadataQuery) returns (MetadataResponse){}
 }
+
 
 message Vec{
     repeated float elements = 1;
@@ -46,4 +48,23 @@ message BatchResponse {
     ResponseStatus status=1;
     string batch_id = 2;
     repeated TopK result =3;
+}
+
+message MetadataQuery{
+    string target_index =1;
+}
+
+message IndexList{
+    repeated string index_names = 1;
+}
+message IndexDetail{
+    string index_name = 1;
+    int32 d = 2;
+}
+message MetadataResponse{
+    ResponseStatus status=1;
+    oneof result {
+        IndexList index_list = 2;
+        IndexDetail index_detail = 3;
+    }
 }
