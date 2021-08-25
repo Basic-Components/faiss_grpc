@@ -5,7 +5,7 @@ option go_package = "hszofficial_faiss_rpc";
 service FAISS_RPC {
     rpc search (Query) returns (Response){}
     rpc batch_search (stream BatchQuery) returns (stream BatchResponse){}
-    // rpc get_index_metadata(MetadataQuery) returns (MetadataResponse){}
+    rpc get_index_metadata(MetadataQuery) returns (MetadataResponse){}
 }
 
 
