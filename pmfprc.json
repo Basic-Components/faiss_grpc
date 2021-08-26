@@ -1,4 +1,16 @@
 {
-    "author": "hsz12",
+    "added_components": {
+        "cp_cxx_grpc//cmakefile": "CMakeLists.txt",
+        "cp_cxx_grpc//dev_env_vc_container": "dev_env.dockerfile",
+        "cp_cxx_grpc//main": "src/main.cc",
+        "cp_cxx_grpc//requirement": "conanfile.txt",
+        "cp_cxx_grpc//service_schema": "pbschema/faiss_grpc.proto",
+        "cp_cxx_grpc//sync_serv_handdler": "src/faiss_grpc_serv/handler.cc",
+        "cp_cxx_grpc//sync_serv_header": "src/faiss_grpc_serv/faiss_grpc_serv.h",
+        "cp_cxx_grpc//sync_serv_serv": "src/faiss_grpc_serv/serv.cc",
+        "cp_dockercompose//server_standalone": "docker-compose.yml",
+        "cp_dockerfiles//cxx_grpc_scratch_dockerfile": "dockerfile"
+    },
+    "author": "mac",
     "env": "cmake"
 }

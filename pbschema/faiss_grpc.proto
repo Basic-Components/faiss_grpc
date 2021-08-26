@@ -1,0 +1,94 @@
+syntax = "proto3";
+package faiss_grpc;
+option go_package = "./faiss_grpc_pb";
+
+service FAISS_GRPC {
+    rpc search (Query) returns (Response){}
+    rpc batch_search (stream Query) returns (stream Response){}
+    rpc get_index_list(ListQuery)returns (ListResponse){}
+    rpc get_index_metadata(MetadataQuery) returns (MetadataResponse){}
+    rpc reload_index(ReloadQuery)returns (ReloadResponse){}
+}
+
+message Vec{
+    repeated float elements = 1;
+}
+message BatchVec{
+    repeated Vec batch = 1;
+}
+
+message Query {
+    string id = 1;
+    string index_name = 2;
+    int32 index_version = 3;
+    int32 k = 4;
+    BatchVec query_vecs=5;
+}
+
+message ResponseStatus {
+    enum Stat {
+      SUCCEED = 0;
+      FAILED = 1;
+    }
+    Stat status = 1;
+    string message = 2;
+  }
+
+message TopK {
+    repeated int64 rank =1;
+}
+
+message Response {
+    string id = 1;
+    ResponseStatus status=2;
+    repeated TopK result =3;
+}
+message ListQuery {
+
+}
+message ListResponse {
+    ResponseStatus status=1;
+    repeated string index_names = 2;
+}
+
+message MetadataQuery{
+    string index_name =1;
+}
+
+message IndexDetail{
+    enum MetricType {
+        METRIC_INNER_PRODUCT = 0; ///< maximum inner product search
+        METRIC_L2 = 1;            ///< squared L2 search
+        METRIC_L1=2;              ///< L1 (aka cityblock)
+        METRIC_Linf=3;              ///< infinity distance
+        METRIC_Lp=4;               ///< L_p distance, p is given by a faiss::Index
+                                /// metric_arg
+
+        /// some additional metrics defined in scipy.spatial.distance
+        METRIC_Canberra = 20;
+        METRIC_BrayCurtis = 21;
+        METRIC_JensenShannon = 22;
+    }
+    string index_name = 1;
+    string index_version = 2;
+    string index_path = 3;
+    int64 last_load_timestamp = 4;
+    int32 d = 5;//< vector dimension
+    int32 ntotal = 6;//< total nb of indexed vectors
+    bool is_trained = 7; //< is_trained
+    
+    MetricType metric_type = 8; //<metric_type
+    float metric_arg = 9; //< argument of the metric type
+}
+message MetadataResponse{
+    ResponseStatus status=1;
+    IndexDetail detail = 2;
+}
+
+message ReloadQuery {
+    repeated string index_names =1;
+}
+
+message ReloadResponse {
+    ResponseStatus status=1;
+}

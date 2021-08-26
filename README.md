@@ -32,7 +32,7 @@
 + 命令行:`--app_version`
 + 环境变量: `FAISS_GRPC_APP_VERSION`
 + 配置文件字段:`app_version`
-+ 默认值: `"0.0.0"`
++ 默认值: `"0.0.2"`
 
 #### 服务启动地址`address`
 
