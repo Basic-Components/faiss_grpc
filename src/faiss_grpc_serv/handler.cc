@@ -35,9 +35,9 @@ namespace faiss_grpc_serv {
         auto sta = response->mutable_status();
         sta->set_status(ResponseStatus_Stat_SUCCEED);
         sta->set_message("ok");
-        auto result = response->mutable_index_names();
+        // auto result = response->mutable_index_names();
         for (auto r : res){
-            result->add_index_names(r);
+            response->add_index_names(r);
         }
         return Status::OK;
 
@@ -56,13 +56,13 @@ namespace faiss_grpc_serv {
         auto sta = response->mutable_status();
         sta->set_status(ResponseStatus_Stat_SUCCEED);
         sta->set_message("ok");
-        response->set_detail(res);
+        response->set_allocated_detail(res);
         return Status::OK;
 
     }
     Status FAISS_GRPC_RPCServiceImpl::reload_index(ServerContext* context, const ReloadQuery* request, ReloadResponse* response){
         IndexManager* index_manager = IndexManager::getInstance();
-        if (!request->has_index_names()){
+        if (!request->index_names_size() < 1){
             index_manager->load_index_dir();
             auto sta = response->mutable_status();
             sta->set_status(ResponseStatus_Stat_SUCCEED);
@@ -104,13 +104,14 @@ namespace faiss_grpc_serv {
         }
         //业务部分
         IndexManager* index_manager = IndexManager::getInstance();
-        auto res = index_manager->search(index_name,k,query_vecs);
+        auto res = index_manager->search(index_name,query_vecs,k);
         auto sta = response->mutable_status();
         sta->set_status(ResponseStatus_Stat_SUCCEED);
         sta->set_message("ok");
-        auto result = response->mutable_result();
+        // auto result = response->mutable_result();
         for (auto r : res){
-            result->add_result(r);
+            auto t = response->add_result();
+            r->
         }
         return Status::OK;
     }
@@ -118,45 +119,48 @@ namespace faiss_grpc_serv {
     Status FAISS_GRPC_RPCServiceImpl::batch_search(ServerContext* context, ServerReaderWriter< Response, Query>* stream){
         IndexManager* index_manager = IndexManager::getInstance();
         Query request;
-        while (stream->Read(&temp)) {
-            if (!request->has_query_vecs()){
-                auto sta = response->mutable_status();
-                sta->set_status(ResponseStatus_Stat_FAILED);
-                sta->set_message("must have query_vecs");
-                return Status::OK;
-            }
-            auto id = request->id();
-            auto index_name = request->index_name();
-            auto k = request->k();
-            auto query_vecs = request->query_vecs();
+        while (stream->Read(&request)) {
+            Response response;
+            auto id = request.id();
             if (id.empty()){
-                auto sta = response->mutable_status();
+                auto sta = response.mutable_status();
                 sta->set_status(ResponseStatus_Stat_FAILED);
                 sta->set_message("id must not empty");
                 return Status::OK;
             }
+            response.set_id(id)
+            if (!request.has_query_vecs()){
+                auto sta = response.mutable_status();
+                sta->set_status(ResponseStatus_Stat_FAILED);
+                sta->set_message("must have query_vecs");
+                return Status::OK;
+            }
+            
+            auto index_name = request.index_name();
+            auto k = request.k();
+            auto query_vecs = request.query_vecs();
+            
             if (index_name.empty()){
-                auto sta = response->mutable_status();
+                auto sta = response.mutable_status();
                 sta->set_status(ResponseStatus_Stat_FAILED);
                 sta->set_message("index_name must not empty");
                 return Status::OK;
             }
             if (k <= 0){
-                auto sta = response->mutable_status();
+                auto sta = response.mutable_status();
                 sta->set_status(ResponseStatus_Stat_FAILED);
                 sta->set_message("k must larger than 0");
                 return Status::OK;
             }
             
             //业务部分
-            Response response;
-            auto res = index_manager->search(index_name,k,query_vecs);
+            auto res = index_manager->search(index_name,query_vecs,k);
             auto sta = response.mutable_status();
-            sta.set_status(ResponseStatus_Stat_SUCCEED);
-            sta.set_message("ok");
+            sta->set_status(ResponseStatus_Stat_SUCCEED);
+            sta->set_message("ok");
             auto result = response.mutable_result();
             for (auto r : res){
-                result.add_result(r);
+                result->add_result(r);
             }
             stream->Write(response);
         }

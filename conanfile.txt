@@ -1,8 +1,6 @@
 [requires]
 grpc/1.38.0
 cryptopp/8.5.0
-nlohmann_json/3.9.1
-json-schema-validator/2.1.0
 spdloghelper/0.0.1@hsz/dev
 schema_entry/0.0.1@hsz/dev
 libfswatch/1.16.0@official/release

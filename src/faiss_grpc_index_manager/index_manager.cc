@@ -137,7 +137,7 @@ namespace faiss_grpc_index_manager{
         this->name_map[index_name].load_index();
     }
 
-    std::vector<TopK> IndexManager::search(std::string index_name,BatchVec& query, int k){
+    std::vector<TopK*> IndexManager::search(std::string index_name,BatchVec& query, int k){
         std::lock_guard<std::mutex> guard(this->lock);
         if (!this->name_map.contains(index_name)){
             throw IndexNameNotExistException(index_name);

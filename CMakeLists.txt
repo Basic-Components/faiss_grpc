@@ -26,6 +26,13 @@ target_sources(${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_serv/handler.cc
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_serv/serv.cc
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_serv/faiss_grpc_serv.h
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/exception.h
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/utils.h
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/utils.cc
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/index_info.h
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/index_info.cc
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/index_manager.h
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/faiss_grpc_index_manager/index_manager.cc
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cc
 )
 

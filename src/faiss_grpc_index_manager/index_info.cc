@@ -63,7 +63,7 @@ namespace faiss_grpc_index_manager{
             throw IndexFileNotExistException();
         }
     }
-    std::vector<TopK> IndexInfo::search_top_k(BatchVec& query, int k){
+    std::vector<TopK*> IndexInfo::search_top_k(BatchVec& query, int k){
         if (!this->loaded){
             throw IndexNotLoadException()
         }
@@ -89,9 +89,9 @@ namespace faiss_grpc_index_manager{
 
         std::vector<TopK> result;
         for (int i = 0; i < nq; i++){
-            TopK v;
+            TopK* v;
             for (int j = 0; j < k; j++){
-                v.add_rank(I[i * k + j]);
+                v->add_rank(I[i * k + j]);
             }
             result.push_back(v);
         }
