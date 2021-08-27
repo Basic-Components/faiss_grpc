@@ -111,7 +111,7 @@ namespace faiss_grpc_serv {
         // auto result = response->mutable_result();
         for (auto r : res){
             auto t = response->add_result();
-            r->
+            t->set_ r->rank();
         }
         return Status::OK;
     }
