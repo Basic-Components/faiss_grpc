@@ -137,8 +137,13 @@ constexpr IndexDetail::IndexDetail(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : index_name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , index_path_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , last_load_(int64_t{0})
-  , d_(0){}
+  , last_load_timestamp_(int64_t{0})
+  , d_(0)
+  , ntotal_(0)
+  , is_trained_(false)
+  , metric_type_(0)
+
+  , metric_arg_(0){}
 struct IndexDetailDefaultTypeInternal {
   constexpr IndexDetailDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -187,7 +192,7 @@ struct ReloadResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ReloadResponseDefaultTypeInternal _ReloadResponse_default_instance_;
 }  // namespace faiss_grpc
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_faiss_5fgrpc_2eproto[13];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_faiss_5fgrpc_2eproto[1];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_faiss_5fgrpc_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_faiss_5fgrpc_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_faiss_5fgrpc_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -257,9 +262,13 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_faiss_5fgrpc_2eproto::offsets[
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, index_name_),
-  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, d_),
   PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, index_path_),
-  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, last_load_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, last_load_timestamp_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, d_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, ntotal_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, is_trained_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, metric_type_),
+  PROTOBUF_FIELD_OFFSET(::faiss_grpc::IndexDetail, metric_arg_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::faiss_grpc::MetadataResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -291,9 +300,9 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 47, -1, sizeof(::faiss_grpc::ListResponse)},
   { 54, -1, sizeof(::faiss_grpc::MetadataQuery)},
   { 60, -1, sizeof(::faiss_grpc::IndexDetail)},
-  { 69, -1, sizeof(::faiss_grpc::MetadataResponse)},
-  { 76, -1, sizeof(::faiss_grpc::ReloadQuery)},
-  { 82, -1, sizeof(::faiss_grpc::ReloadResponse)},
+  { 73, -1, sizeof(::faiss_grpc::MetadataResponse)},
+  { 80, -1, sizeof(::faiss_grpc::ReloadQuery)},
+  { 86, -1, sizeof(::faiss_grpc::ReloadResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -327,27 +336,35 @@ const char descriptor_table_protodef_faiss_5fgrpc_2eproto[] PROTOBUF_SECTION_VAR
   "stQuery\"O\n\014ListResponse\022*\n\006status\030\001 \001(\0132"
   "\032.faiss_grpc.ResponseStatus\022\023\n\013index_nam"
   "es\030\002 \003(\t\"#\n\rMetadataQuery\022\022\n\nindex_name\030"
-  "\001 \001(\t\"S\n\013IndexDetail\022\022\n\nindex_name\030\001 \001(\t"
-  "\022\t\n\001d\030\002 \001(\005\022\022\n\nindex_path\030\003 \001(\t\022\021\n\tlast_"
-  "load\030\004 \001(\003\"g\n\020MetadataResponse\022*\n\006status"
-  "\030\001 \001(\0132\032.faiss_grpc.ResponseStatus\022\'\n\006de"
-  "tail\030\002 \001(\0132\027.faiss_grpc.IndexDetail\"\"\n\013R"
-  "eloadQuery\022\023\n\013index_names\030\001 \003(\t\"<\n\016Reloa"
-  "dResponse\022*\n\006status\030\001 \001(\0132\032.faiss_grpc.R"
-  "esponseStatus2\335\002\n\nFAISS_GRPC\0223\n\006search\022\021"
-  ".faiss_grpc.Query\032\024.faiss_grpc.Response\""
-  "\000\022=\n\014batch_search\022\021.faiss_grpc.Query\032\024.f"
-  "aiss_grpc.Response\"\000(\0010\001\022C\n\016get_index_li"
-  "st\022\025.faiss_grpc.ListQuery\032\030.faiss_grpc.L"
-  "istResponse\"\000\022O\n\022get_index_metadata\022\031.fa"
-  "iss_grpc.MetadataQuery\032\034.faiss_grpc.Meta"
-  "dataResponse\"\000\022E\n\014reload_index\022\027.faiss_g"
-  "rpc.ReloadQuery\032\032.faiss_grpc.ReloadRespo"
-  "nse\"\000B\021Z\017./faiss_grpc_pbb\006proto3"
+  "\001 \001(\t\"\373\002\n\013IndexDetail\022\022\n\nindex_name\030\001 \001("
+  "\t\022\022\n\nindex_path\030\002 \001(\t\022\033\n\023last_load_times"
+  "tamp\030\003 \001(\003\022\t\n\001d\030\004 \001(\005\022\016\n\006ntotal\030\005 \001(\005\022\022\n"
+  "\nis_trained\030\006 \001(\010\0227\n\013metric_type\030\007 \001(\0162\""
+  ".faiss_grpc.IndexDetail.MetricType\022\022\n\nme"
+  "tric_arg\030\010 \001(\002\"\252\001\n\nMetricType\022\030\n\024METRIC_"
+  "INNER_PRODUCT\020\000\022\r\n\tMETRIC_L2\020\001\022\r\n\tMETRIC"
+  "_L1\020\002\022\017\n\013METRIC_Linf\020\003\022\r\n\tMETRIC_Lp\020\004\022\023\n"
+  "\017METRIC_Canberra\020\024\022\025\n\021METRIC_BrayCurtis\020"
+  "\025\022\030\n\024METRIC_JensenShannon\020\026\"g\n\020MetadataR"
+  "esponse\022*\n\006status\030\001 \001(\0132\032.faiss_grpc.Res"
+  "ponseStatus\022\'\n\006detail\030\002 \001(\0132\027.faiss_grpc"
+  ".IndexDetail\"\"\n\013ReloadQuery\022\023\n\013index_nam"
+  "es\030\001 \003(\t\"<\n\016ReloadResponse\022*\n\006status\030\001 \001"
+  "(\0132\032.faiss_grpc.ResponseStatus2\335\002\n\nFAISS"
+  "_GRPC\0223\n\006search\022\021.faiss_grpc.Query\032\024.fai"
+  "ss_grpc.Response\"\000\022=\n\014batch_search\022\021.fai"
+  "ss_grpc.Query\032\024.faiss_grpc.Response\"\000(\0010"
+  "\001\022C\n\016get_index_list\022\025.faiss_grpc.ListQue"
+  "ry\032\030.faiss_grpc.ListResponse\"\000\022O\n\022get_in"
+  "dex_metadata\022\031.faiss_grpc.MetadataQuery\032"
+  "\034.faiss_grpc.MetadataResponse\"\000\022E\n\014reloa"
+  "d_index\022\027.faiss_grpc.ReloadQuery\032\032.faiss"
+  "_grpc.ReloadResponse\"\000B\021Z\017./faiss_grpc_p"
+  "bb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_faiss_5fgrpc_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_faiss_5fgrpc_2eproto = {
-  false, false, 1232, descriptor_table_protodef_faiss_5fgrpc_2eproto, "faiss_grpc.proto", 
+  false, false, 1529, descriptor_table_protodef_faiss_5fgrpc_2eproto, "faiss_grpc.proto", 
   &descriptor_table_faiss_5fgrpc_2eproto_once, nullptr, 0, 13,
   schemas, file_default_instances, TableStruct_faiss_5fgrpc_2eproto::offsets,
   file_level_metadata_faiss_5fgrpc_2eproto, file_level_enum_descriptors_faiss_5fgrpc_2eproto, file_level_service_descriptors_faiss_5fgrpc_2eproto,
@@ -379,6 +396,39 @@ constexpr ResponseStatus_Stat ResponseStatus::FAILED;
 constexpr ResponseStatus_Stat ResponseStatus::Stat_MIN;
 constexpr ResponseStatus_Stat ResponseStatus::Stat_MAX;
 constexpr int ResponseStatus::Stat_ARRAYSIZE;
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* IndexDetail_MetricType_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_faiss_5fgrpc_2eproto);
+  return file_level_enum_descriptors_faiss_5fgrpc_2eproto[1];
+}
+bool IndexDetail_MetricType_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 20:
+    case 21:
+    case 22:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+constexpr IndexDetail_MetricType IndexDetail::METRIC_INNER_PRODUCT;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_L2;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_L1;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_Linf;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_Lp;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_Canberra;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_BrayCurtis;
+constexpr IndexDetail_MetricType IndexDetail::METRIC_JensenShannon;
+constexpr IndexDetail_MetricType IndexDetail::MetricType_MIN;
+constexpr IndexDetail_MetricType IndexDetail::MetricType_MAX;
+constexpr int IndexDetail::MetricType_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 
 // ===================================================================
@@ -2437,9 +2487,9 @@ IndexDetail::IndexDetail(const IndexDetail& from)
     index_path_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_index_path(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&last_load_, &from.last_load_,
-    static_cast<size_t>(reinterpret_cast<char*>(&d_) -
-    reinterpret_cast<char*>(&last_load_)) + sizeof(d_));
+  ::memcpy(&last_load_timestamp_, &from.last_load_timestamp_,
+    static_cast<size_t>(reinterpret_cast<char*>(&metric_arg_) -
+    reinterpret_cast<char*>(&last_load_timestamp_)) + sizeof(metric_arg_));
   // @@protoc_insertion_point(copy_constructor:faiss_grpc.IndexDetail)
 }
 
@@ -2447,9 +2497,9 @@ void IndexDetail::SharedCtor() {
 index_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 index_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&last_load_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&d_) -
-    reinterpret_cast<char*>(&last_load_)) + sizeof(d_));
+    reinterpret_cast<char*>(&last_load_timestamp_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&metric_arg_) -
+    reinterpret_cast<char*>(&last_load_timestamp_)) + sizeof(metric_arg_));
 }
 
 IndexDetail::~IndexDetail() {
@@ -2482,9 +2532,9 @@ void IndexDetail::Clear() {
 
   index_name_.ClearToEmpty();
   index_path_.ClearToEmpty();
-  ::memset(&last_load_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&d_) -
-      reinterpret_cast<char*>(&last_load_)) + sizeof(d_));
+  ::memset(&last_load_timestamp_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&metric_arg_) -
+      reinterpret_cast<char*>(&last_load_timestamp_)) + sizeof(metric_arg_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -2503,27 +2553,56 @@ const char* IndexDetail::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // int32 d = 2;
+      // string index_path = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          d_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // string index_path = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_index_path();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "faiss_grpc.IndexDetail.index_path"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // int64 last_load = 4;
+      // int64 last_load_timestamp = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          last_load_timestamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 d = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          last_load_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          d_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 ntotal = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          ntotal_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool is_trained = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          is_trained_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .faiss_grpc.IndexDetail.MetricType metric_type = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_metric_type(static_cast<::faiss_grpc::IndexDetail_MetricType>(val));
+        } else goto handle_unusual;
+        continue;
+      // float metric_arg = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 69)) {
+          metric_arg_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
       default: {
@@ -2565,26 +2644,51 @@ failure:
         1, this->_internal_index_name(), target);
   }
 
-  // int32 d = 2;
-  if (this->d() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_d(), target);
-  }
-
-  // string index_path = 3;
+  // string index_path = 2;
   if (!this->index_path().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_index_path().data(), static_cast<int>(this->_internal_index_path().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "faiss_grpc.IndexDetail.index_path");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_index_path(), target);
+        2, this->_internal_index_path(), target);
   }
 
-  // int64 last_load = 4;
-  if (this->last_load() != 0) {
+  // int64 last_load_timestamp = 3;
+  if (this->last_load_timestamp() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(4, this->_internal_last_load(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(3, this->_internal_last_load_timestamp(), target);
+  }
+
+  // int32 d = 4;
+  if (this->d() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_d(), target);
+  }
+
+  // int32 ntotal = 5;
+  if (this->ntotal() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(5, this->_internal_ntotal(), target);
+  }
+
+  // bool is_trained = 6;
+  if (this->is_trained() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(6, this->_internal_is_trained(), target);
+  }
+
+  // .faiss_grpc.IndexDetail.MetricType metric_type = 7;
+  if (this->metric_type() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      7, this->_internal_metric_type(), target);
+  }
+
+  // float metric_arg = 8;
+  if (!(this->metric_arg() <= 0 && this->metric_arg() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(8, this->_internal_metric_arg(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2610,25 +2714,48 @@ size_t IndexDetail::ByteSizeLong() const {
         this->_internal_index_name());
   }
 
-  // string index_path = 3;
+  // string index_path = 2;
   if (!this->index_path().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_index_path());
   }
 
-  // int64 last_load = 4;
-  if (this->last_load() != 0) {
+  // int64 last_load_timestamp = 3;
+  if (this->last_load_timestamp() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
-        this->_internal_last_load());
+        this->_internal_last_load_timestamp());
   }
 
-  // int32 d = 2;
+  // int32 d = 4;
   if (this->d() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->_internal_d());
+  }
+
+  // int32 ntotal = 5;
+  if (this->ntotal() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_ntotal());
+  }
+
+  // bool is_trained = 6;
+  if (this->is_trained() != 0) {
+    total_size += 1 + 1;
+  }
+
+  // .faiss_grpc.IndexDetail.MetricType metric_type = 7;
+  if (this->metric_type() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_metric_type());
+  }
+
+  // float metric_arg = 8;
+  if (!(this->metric_arg() <= 0 && this->metric_arg() >= 0)) {
+    total_size += 1 + 4;
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2668,11 +2795,23 @@ void IndexDetail::MergeFrom(const IndexDetail& from) {
   if (!from.index_path().empty()) {
     _internal_set_index_path(from._internal_index_path());
   }
-  if (from.last_load() != 0) {
-    _internal_set_last_load(from._internal_last_load());
+  if (from.last_load_timestamp() != 0) {
+    _internal_set_last_load_timestamp(from._internal_last_load_timestamp());
   }
   if (from.d() != 0) {
     _internal_set_d(from._internal_d());
+  }
+  if (from.ntotal() != 0) {
+    _internal_set_ntotal(from._internal_ntotal());
+  }
+  if (from.is_trained() != 0) {
+    _internal_set_is_trained(from._internal_is_trained());
+  }
+  if (from.metric_type() != 0) {
+    _internal_set_metric_type(from._internal_metric_type());
+  }
+  if (!(from.metric_arg() <= 0 && from.metric_arg() >= 0)) {
+    _internal_set_metric_arg(from._internal_metric_arg());
   }
 }
 
@@ -2708,11 +2847,11 @@ void IndexDetail::InternalSwap(IndexDetail* other) {
       &other->index_path_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(IndexDetail, d_)
-      + sizeof(IndexDetail::d_)
-      - PROTOBUF_FIELD_OFFSET(IndexDetail, last_load_)>(
-          reinterpret_cast<char*>(&last_load_),
-          reinterpret_cast<char*>(&other->last_load_));
+      PROTOBUF_FIELD_OFFSET(IndexDetail, metric_arg_)
+      + sizeof(IndexDetail::metric_arg_)
+      - PROTOBUF_FIELD_OFFSET(IndexDetail, last_load_timestamp_)>(
+          reinterpret_cast<char*>(&last_load_timestamp_),
+          reinterpret_cast<char*>(&other->last_load_timestamp_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata IndexDetail::GetMetadata() const {

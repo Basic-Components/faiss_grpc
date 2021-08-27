@@ -6,8 +6,15 @@
 
 using grpc::ServerContext;
 using grpc::Status;
-using faiss_grpc::FAISS_GRPC_RPC;
-using faiss_grpc::Message;
+using faiss_grpc::FAISS_GRPC;
+using faiss_grpc::Query;
+using faiss_grpc::Response;
+using faiss_grpc::ListQuery;
+using faiss_grpc::ListResponse;
+using faiss_grpc::MetadataQuery;
+using faiss_grpc::MetadataResponse;
+using faiss_grpc::ReloadQuery;
+using faiss_grpc::ReloadResponse;
 
 using grpc::ServerReader;
 using grpc::ServerReaderWriter;
@@ -15,11 +22,14 @@ using grpc::ServerWriter;
 
 // 实现接口
 namespace faiss_grpc_serv {
-    class FAISS_GRPC_RPCServiceImpl final : public FAISS_GRPC_RPC::Service {
-        Status Square(ServerContext* context, const Message* request, Message* response) override;
-        Status RangeSquare(ServerContext* context, const Message* request, ServerWriter<Message>* writer) override;
-        Status SumSquare(ServerContext* context, ServerReader<Message>* reader, Message* response) override;
-        Status StreamrangeSquare(ServerContext* context, ServerReaderWriter<Message, Message>* stream) override;
+    class FAISS_GRPC_RPCServiceImpl final : public FAISS_GRPC::Service {
+
+        Status search(ServerContext* context, const Query* request, Response* response);
+        Status batch_search(ServerContext* context, ServerReaderWriter< Response, Query>* stream);
+        Status get_index_list(ServerContext* context, const ListQuery* request, ListResponse* response);
+        Status get_index_metadata(ServerContext* context, const MetadataQuery* request, MetadataResponse* response);
+        Status reload_index(ServerContext* context, const ReloadQuery* request, ReloadResponse* response);
+
     };
     const json SCHEMA = R"({
     "$schema": "http://json-schema.org/draft-07/schema#",

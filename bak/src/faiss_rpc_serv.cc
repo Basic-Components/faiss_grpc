@@ -199,7 +199,7 @@ using faiss_index_manager::IndexManager;
 
 
 namespace faiss_grpc_fswatch_callback{
-     void fschangecallback(const std::vector<event> &evts, void *ctx)
+    void fschangecallback(const std::vector<event> &evts, void *ctx)
     {
         IndexManager & instance = IndexManager::get_instance();
         for (auto evt : evts)

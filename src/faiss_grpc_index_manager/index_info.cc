@@ -62,9 +62,6 @@ namespace faiss_grpc_index_manager{
         }else{
             throw IndexFileNotExistException();
         }
-        
-
-        
     }
     std::vector<TopK> IndexInfo::search_top_k(BatchVec& query, int k){
         if (!this->loaded){

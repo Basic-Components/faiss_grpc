@@ -1,12 +1,24 @@
 #include <filesystem>
+#include <set>
+#include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <mutex>
 #include <exception>
 #include <regex>
+
 #include <nlohmann/json-schema.hpp>
 #include <spdloghelper.h>
 
+#include <libfswatch/c++/monitor_factory.hpp>
+#include <libfswatch/c++/monitor.hpp>
+#include <libfswatch/c++/event.hpp>
+#include <libfswatch/c/cevent.h>
+
+#include <faiss/MetricType.h>
+
+#include "../faiss_grpc_pb/faiss_grpc.grpc.pb.h"
 
 #include "exception.h"
 #include "utils.h"
@@ -15,111 +27,146 @@
 namespace fs = std::filesystem;
 // log依赖
 using Logger = spdloghelper::LogHelper;
-// json依赖
-using nlohmann::json;
-using nlohmann::json_schema::json_validator;
 
+// fsw
+using fsw::event;
+using fsw::monitor;
+using fsw::monitor_factory;
 
-const std::regex index_regex("^v(0|[1-9][0-9]*).index$");
-void check_config_schema(json& config ){
-    Logger* logger = Logger::getInstance();
-    json schema = R"({
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "array",
-    "items":{
-        "type": "object",
-        "properties": {
-            "index_name":{
-                "type": "string",
-                "description": "index的名字"
-            }
-            "index_path":{
-                "type": "string",
-                "description": "index所在的文件夹"
-            }
-        },
-        "required": ["index_name", "index_path"],
-        "additionalProperties":false
-    },
-    "minItems": 1
-    })"_json;
-    json_validator validator; // create validator
-    try {
-        validator.set_root_schema(schema); // insert root-schema
-    } catch (const std::exception &err) {
-        logger->error("Validation of schema failed", {{"error", err.what()}});
-        throw err;
-    }
-    try {
-        validator.validate(config); // validate the document - uses the default throwing error-handler
-    } catch (const std::exception &err) {
-        logger->error("Config Validation failed", {{"error", err.what()},{"config", config.dump()},{"schema",schema.dump()}});
-        throw err;
-    }
-}
+//pb的依赖
+using faiss_grpc::BatchVec;
+using faiss_grpc::TopK;
+using faiss_grpc::IndexDetail;
+
 
 
 namespace faiss_grpc_index_manager{
 
-    void IndexManager::set_config_path(std::string config_path){
-        this->config_path=config_path;
-    }
-
-    map<int, IndexInfo> IndexManager::load_index(std::string index_name, std::string path){
-        map<int, IndexInfo> result;
-        fs::path p = path;
-        
-        // 路径为文件,则作为version=v0的索引
-        if(fs::is_regular_file(p) && endsWith(p.filename().string(), ".index") ){
-            result[0] = IndexInfo(index_name,0, path);
-        }else if(fs::is_directory(p)){
-            for (auto &ele : fs::directory_iterator(p)){
-                auto subp = ele.path();
-                if (fs::is_regular_file(subp) && std::regex_match(subp.filename().string(), index_regex) ){
-                    subp.filename().string().
+    void fschangecallback(const std::vector<event> &evts, void *ctx){
+        auto index_manager = IndexManager::get_instance();
+        auto logger = Logger::getInstance();
+        for (auto evt : evts){
+            auto flags = evt.get_flags();
+            if (flags.empty()){
+                logger->info("get event empty")
+                continue;
+            }
+            for (auto& flag : flags){
+                auto ele_path_str = evt.get_path();
+                fs::path ele_path = ele_path_str;
+                switch (flag) {
+                    case Created :
+                    case Updated :
+                    {
+                        logger->info("get effective fsevent",{ {"fsevent",event::get_event_flag_name(flag)},{"path",ele_path_str} });
+                        index_manager->load_index_dir()
+                    }
+                    break;
+                    default:
+                        logger->info("get uneffective fsevent",{ {"fsevent",event::get_event_flag_name(flag)},{"path",ele_path_str} });
                 }
-            }  
-        }else{
-
+            }
         }
     }
-    void IndexManager::watch_index(std::string path){
 
-    }
-    void IndexManager::load_config(){
-        Logger* logger = Logger::getInstance();
-        std::ifstream file(this->config_path);
-        if (file.is_open()){
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            std::string content_str(buffer.str());
-            file.close();
-            // 计算读入配置的hash
-            auto content_hash = get_content_hash(content_str);
-            if (this->config_hash != "" && content_hash == this->config_hash){
-                logger->info("config file not change")
-                return
-            }
-            json result = json::parse(content_str);
-            if (result.empty()){
-                throw ConfigFileEmptyException();
-            }
- 
-            try {
-                check_config_schema(result);
-            }catch (std::exception &err){
-                throw CheckConfigSchemaException();
-            }
-            this->config_hash = content_hash
-            // //解析配置
-            // for (auto& i : result){
-                
-            // }
-            // this->im[]
-            
-        }else{
-            throw ConfigFileNotExistException()
+    void IndexManager::update_index(std::string index_name,std::string index_path){
+        auto logger = Logger::getInstance();
+        std::lock_guard<std::mutex> guard(this->lock);
+        try{
+            this->name_map[index_name].index_path = index_path;
+            this->name_map[index_name].load_index();
+            logger->info("update index done",{ {"index_name",index_name},{"path",index_path} });
+        }catch (std::exception &e) {
+            logger->error("update index get error",{{"index_name",index_name},{"error",e.what()}});
         }
     }
-    void IndexManager::watch_config();
+    void IndexManager::add_index(std::string index_name,std::string index_path){
+        auto logger = Logger::getInstance();
+        std::lock_guard<std::mutex> guard(this->lock);
+        try{
+            this->name_map[index_name]= IndexInfo(index_name,index_path);
+            this->name_map[index_name].load_index();
+            logger->info("add index done",{ {"index_name",index_name},{"path",index_path} });
+        }catch (std::exception &e) {
+            logger->error("add index get error",{{"index_name",index_name},{"error",e.what()}});
+        }
+    }
+    void IndexManager::delete_index(std::string index_name){
+        auto logger = Logger::getInstance();
+        std::lock_guard<std::mutex> guard(this->lock);
+        this->name_map.erase(index_name);
+        logger->info("delete index done",{ {"index_name",index_name} });
+    }
+
+    void IndexManager::load_index_dir(){
+        fs::path index_dir_path =this->index_dir;
+        if (!fs::is_directory(index_dir_path)){
+            throw IndexDirNotExistException();
+        }
+        for(auto& ele: fs::directory_iterator(index_dir_path)){
+            auto ele_path = ele.path();
+            auto ele_path_str = ele_path.string();
+            std::set<std::string> all_index_names;
+            if (fs::is_regular_file(ele_path) && endsWith(ele_path.filename().string(),".index")){
+                auto index_name = std::regex_replace(ele_path.filename().string() ".index", "");
+                all_index_names.insert(index_name)// 插入用于不删除的set
+                if (this->name_map.contains(index_name)){
+                    this->update_index(index_name,ele_path_str);
+                }else{
+                    ithis->add_index(index_name,ele_path_str);
+                }
+            }
+            std::set<std::string> need_to_del;
+            for (auto& e : this->name_map.items()){
+                auto index_name = e.key();
+                if (!all_index_names.contains(index_name)){
+                    need_to_del.insert(index_name);
+                }
+            }
+            for (auto& ne : need_to_del){
+                this->delete_index(ne);
+            }
+        }
+    }
+
+    void IndexManager::reload_index(std::string index_name){
+        std::lock_guard<std::mutex> guard(this->lock);
+        if (!this->name_map.contains(index_name)){
+            throw IndexNameNotExistException(index_name);
+        }
+        this->name_map[index_name].load_index();
+    }
+
+    std::vector<TopK> IndexManager::search(std::string index_name,BatchVec& query, int k){
+        std::lock_guard<std::mutex> guard(this->lock);
+        if (!this->name_map.contains(index_name)){
+            throw IndexNameNotExistException(index_name);
+        }
+        return this->name_map[index_name].search_top_k(query,k);
+    }
+    std::vector<std::string> IndexManager::get_index_list(){
+        std::lock_guard<std::mutex> guard(this->lock);
+        std::vector<std::string> result;
+        for (auto& e : this->name_map.items()){
+            result.push_back(e.key());
+        }
+        return result;
+    }
+    IndexDetail* IndexManager::get_index_metadata(std::string index_name){
+        std::lock_guard<std::mutex> guard(this->lock);
+        if (!this->name_map.contains(index_name)){
+            throw IndexNameNotExistException(index_name);
+        }
+        IndexDetail* result;
+        result->set_index_name(this->name_map[index_name].index_name);
+        result->set_index_path(this->name_map[index_name].index_path);
+        longlong last_load_timestamp = this->name_map[index_name].last_update;
+        result->set_last_load_timestamp(last_load_timestamp);
+        result->set_d(this->name_map[index_name].index->d);
+        result->set_ntotal(this->name_map[index_name].index->ntotal);
+        result->set_is_trained(this->name_map[index_name].index->is_trained);
+        result->set_metric_arg(this->name_map[index_name].index->metric_arg);
+        result->set_metric_type(this->name_map[index_name].index->metric_type);
+        return result;
+    }
 }

@@ -20,9 +20,8 @@ message BatchVec{
 message Query {
     string id = 1;
     string index_name = 2;
-    int32 index_version = 3;
-    int32 k = 4;
-    BatchVec query_vecs=5;
+    int32 k = 3;
+    BatchVec query_vecs=4;
 }
 
 message ResponseStatus {
@@ -70,15 +69,14 @@ message IndexDetail{
         METRIC_JensenShannon = 22;
     }
     string index_name = 1;
-    string index_version = 2;
-    string index_path = 3;
-    int64 last_load_timestamp = 4;
-    int32 d = 5;//< vector dimension
-    int32 ntotal = 6;//< total nb of indexed vectors
-    bool is_trained = 7; //< is_trained
+    string index_path = 2;
+    int64 last_load_timestamp = 3;
+    int32 d = 4;//< vector dimension
+    int32 ntotal = 5;//< total nb of indexed vectors
+    bool is_trained = 6; //< is_trained
     
-    MetricType metric_type = 8; //<metric_type
-    float metric_arg = 9; //< argument of the metric type
+    MetricType metric_type = 7; //<metric_type
+    float metric_arg = 8; //< argument of the metric type
 }
 message MetadataResponse{
     ResponseStatus status=1;

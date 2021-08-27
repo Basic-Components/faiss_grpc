@@ -80,12 +80,36 @@ namespace faiss_grpc_index_manager{
         std::string message;
     };
 
-    //IndexFileNotExistException 配置格式不符合要求
+    //IndexFileNotExistException index文件不存在
     class IndexFileNotExistException : public std::exception{
         public:
         IndexFileNotExistException() : message("Index file not exist") {};
         IndexFileNotExistException(std::string str) : message("Index file not exist: " + str) {};
         ~IndexFileNotExistException() throw(){};
+        virtual const char *what() const throw(){
+            return message.c_str();
+        };
+        private:
+        std::string message;
+    };
+    //IndexDirNotExistException 保存index文件的文件夹不存在
+    class IndexDirNotExistException : public std::exception{
+        public:
+        IndexDirNotExistException() : message("Index dir not exist") {};
+        IndexDirNotExistException(std::string str) : message("Index dir not exist: " + str) {};
+        ~IndexDirNotExistException() throw(){};
+        virtual const char *what() const throw(){
+            return message.c_str();
+        };
+        private:
+        std::string message;
+    };
+    //IndexNameNotExistException index不存在
+    class IndexNameNotExistException : public std::exception{
+        public:
+        IndexNameNotExistException() : message("Index name not exist") {};
+        IndexNameNotExistException(std::string str) : message("Index name not exist: " + str) {};
+        ~IndexNameNotExistException() throw(){};
         virtual const char *what() const throw(){
             return message.c_str();
         };

@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <thread>
+
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
@@ -9,16 +11,24 @@
 #include "schema_entry.h"
 #include "spdloghelper.h"
 #include <nlohmann/json.hpp>
+#include <libfswatch/c++/monitor_factory.hpp>
+#include <libfswatch/c++/monitor.hpp>
+
+
+#include "../faiss_grpc_index_manager/index_manager.h"
 #include "faiss_grpc_serv.h"
 
 using nlohmann::json;
 using Logger = spdloghelper::LogHelper;
+using fschangecallback = faiss_grpc_index_manager::fschangecallback;
 
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerReaderWriter;
 using grpc::SslServerCredentialsOptions;
 
+using fsw::monitor;
+using fsw::monitor_factory;
 
 // 读取文件
 void read (const std::string& filename, std::string& data){
@@ -45,7 +55,25 @@ namespace faiss_grpc_serv{
         }else{
             logger->init_logger(log_level,app_name);
         }
-        
+        //监听index变化
+        monitor *active_monitor = monitor_factory::create_monitor(
+            fsw_monitor_type::poll_monitor_type,
+            this->index_dirs,
+            fschangecallback
+        );
+        // Configure the monitor
+        active_monitor->add_event_type_filter({Updated});
+        active_monitor->set_watch_access(false);
+
+        // Start the monitor 
+        std::thread t([&]() {
+            spdlog::info((json{{"event", "start watching fs"},{"path", this->index_dirs}}).dump());
+            active_monitor->start(); 
+            });
+        t.detach();
+
+
+        //grpc
         FAISS_GRPC_RPCServiceImpl service;
         // 注册健康检查和反射接口
         grpc::EnableDefaultHealthCheckService(true);
@@ -177,5 +205,6 @@ namespace faiss_grpc_serv{
         std::unique_ptr<Server> server(builder.BuildAndStart());
         logger->info("Server start",{ { "address", address } });
         server->Wait();
+        active_monitor->stop();
     }
 }

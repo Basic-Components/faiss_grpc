@@ -137,6 +137,37 @@ inline bool ResponseStatus_Stat_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ResponseStatus_Stat>(
     ResponseStatus_Stat_descriptor(), name, value);
 }
+enum IndexDetail_MetricType : int {
+  IndexDetail_MetricType_METRIC_INNER_PRODUCT = 0,
+  IndexDetail_MetricType_METRIC_L2 = 1,
+  IndexDetail_MetricType_METRIC_L1 = 2,
+  IndexDetail_MetricType_METRIC_Linf = 3,
+  IndexDetail_MetricType_METRIC_Lp = 4,
+  IndexDetail_MetricType_METRIC_Canberra = 20,
+  IndexDetail_MetricType_METRIC_BrayCurtis = 21,
+  IndexDetail_MetricType_METRIC_JensenShannon = 22,
+  IndexDetail_MetricType_IndexDetail_MetricType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  IndexDetail_MetricType_IndexDetail_MetricType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool IndexDetail_MetricType_IsValid(int value);
+constexpr IndexDetail_MetricType IndexDetail_MetricType_MetricType_MIN = IndexDetail_MetricType_METRIC_INNER_PRODUCT;
+constexpr IndexDetail_MetricType IndexDetail_MetricType_MetricType_MAX = IndexDetail_MetricType_METRIC_JensenShannon;
+constexpr int IndexDetail_MetricType_MetricType_ARRAYSIZE = IndexDetail_MetricType_MetricType_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* IndexDetail_MetricType_descriptor();
+template<typename T>
+inline const std::string& IndexDetail_MetricType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, IndexDetail_MetricType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function IndexDetail_MetricType_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    IndexDetail_MetricType_descriptor(), enum_t_value);
+}
+inline bool IndexDetail_MetricType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, IndexDetail_MetricType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<IndexDetail_MetricType>(
+    IndexDetail_MetricType_descriptor(), name, value);
+}
 // ===================================================================
 
 class Vec final :
@@ -1638,13 +1669,59 @@ class IndexDetail final :
 
   // nested types ----------------------------------------------------
 
+  typedef IndexDetail_MetricType MetricType;
+  static constexpr MetricType METRIC_INNER_PRODUCT =
+    IndexDetail_MetricType_METRIC_INNER_PRODUCT;
+  static constexpr MetricType METRIC_L2 =
+    IndexDetail_MetricType_METRIC_L2;
+  static constexpr MetricType METRIC_L1 =
+    IndexDetail_MetricType_METRIC_L1;
+  static constexpr MetricType METRIC_Linf =
+    IndexDetail_MetricType_METRIC_Linf;
+  static constexpr MetricType METRIC_Lp =
+    IndexDetail_MetricType_METRIC_Lp;
+  static constexpr MetricType METRIC_Canberra =
+    IndexDetail_MetricType_METRIC_Canberra;
+  static constexpr MetricType METRIC_BrayCurtis =
+    IndexDetail_MetricType_METRIC_BrayCurtis;
+  static constexpr MetricType METRIC_JensenShannon =
+    IndexDetail_MetricType_METRIC_JensenShannon;
+  static inline bool MetricType_IsValid(int value) {
+    return IndexDetail_MetricType_IsValid(value);
+  }
+  static constexpr MetricType MetricType_MIN =
+    IndexDetail_MetricType_MetricType_MIN;
+  static constexpr MetricType MetricType_MAX =
+    IndexDetail_MetricType_MetricType_MAX;
+  static constexpr int MetricType_ARRAYSIZE =
+    IndexDetail_MetricType_MetricType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  MetricType_descriptor() {
+    return IndexDetail_MetricType_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& MetricType_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, MetricType>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function MetricType_Name.");
+    return IndexDetail_MetricType_Name(enum_t_value);
+  }
+  static inline bool MetricType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      MetricType* value) {
+    return IndexDetail_MetricType_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
   enum : int {
     kIndexNameFieldNumber = 1,
-    kIndexPathFieldNumber = 3,
-    kLastLoadFieldNumber = 4,
-    kDFieldNumber = 2,
+    kIndexPathFieldNumber = 2,
+    kLastLoadTimestampFieldNumber = 3,
+    kDFieldNumber = 4,
+    kNtotalFieldNumber = 5,
+    kIsTrainedFieldNumber = 6,
+    kMetricTypeFieldNumber = 7,
+    kMetricArgFieldNumber = 8,
   };
   // string index_name = 1;
   void clear_index_name();
@@ -1660,7 +1737,7 @@ class IndexDetail final :
   std::string* _internal_mutable_index_name();
   public:
 
-  // string index_path = 3;
+  // string index_path = 2;
   void clear_index_path();
   const std::string& index_path() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1674,22 +1751,58 @@ class IndexDetail final :
   std::string* _internal_mutable_index_path();
   public:
 
-  // int64 last_load = 4;
-  void clear_last_load();
-  ::PROTOBUF_NAMESPACE_ID::int64 last_load() const;
-  void set_last_load(::PROTOBUF_NAMESPACE_ID::int64 value);
+  // int64 last_load_timestamp = 3;
+  void clear_last_load_timestamp();
+  ::PROTOBUF_NAMESPACE_ID::int64 last_load_timestamp() const;
+  void set_last_load_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int64 _internal_last_load() const;
-  void _internal_set_last_load(::PROTOBUF_NAMESPACE_ID::int64 value);
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_last_load_timestamp() const;
+  void _internal_set_last_load_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value);
   public:
 
-  // int32 d = 2;
+  // int32 d = 4;
   void clear_d();
   ::PROTOBUF_NAMESPACE_ID::int32 d() const;
   void set_d(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
   ::PROTOBUF_NAMESPACE_ID::int32 _internal_d() const;
   void _internal_set_d(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 ntotal = 5;
+  void clear_ntotal();
+  ::PROTOBUF_NAMESPACE_ID::int32 ntotal() const;
+  void set_ntotal(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_ntotal() const;
+  void _internal_set_ntotal(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // bool is_trained = 6;
+  void clear_is_trained();
+  bool is_trained() const;
+  void set_is_trained(bool value);
+  private:
+  bool _internal_is_trained() const;
+  void _internal_set_is_trained(bool value);
+  public:
+
+  // .faiss_grpc.IndexDetail.MetricType metric_type = 7;
+  void clear_metric_type();
+  ::faiss_grpc::IndexDetail_MetricType metric_type() const;
+  void set_metric_type(::faiss_grpc::IndexDetail_MetricType value);
+  private:
+  ::faiss_grpc::IndexDetail_MetricType _internal_metric_type() const;
+  void _internal_set_metric_type(::faiss_grpc::IndexDetail_MetricType value);
+  public:
+
+  // float metric_arg = 8;
+  void clear_metric_arg();
+  float metric_arg() const;
+  void set_metric_arg(float value);
+  private:
+  float _internal_metric_arg() const;
+  void _internal_set_metric_arg(float value);
   public:
 
   // @@protoc_insertion_point(class_scope:faiss_grpc.IndexDetail)
@@ -1701,8 +1814,12 @@ class IndexDetail final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr index_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr index_path_;
-  ::PROTOBUF_NAMESPACE_ID::int64 last_load_;
+  ::PROTOBUF_NAMESPACE_ID::int64 last_load_timestamp_;
   ::PROTOBUF_NAMESPACE_ID::int32 d_;
+  ::PROTOBUF_NAMESPACE_ID::int32 ntotal_;
+  bool is_trained_;
+  int metric_type_;
+  float metric_arg_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_faiss_5fgrpc_2eproto;
 };
@@ -3007,27 +3124,7 @@ inline void IndexDetail::set_allocated_index_name(std::string* index_name) {
   // @@protoc_insertion_point(field_set_allocated:faiss_grpc.IndexDetail.index_name)
 }
 
-// int32 d = 2;
-inline void IndexDetail::clear_d() {
-  d_ = 0;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::_internal_d() const {
-  return d_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::d() const {
-  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.d)
-  return _internal_d();
-}
-inline void IndexDetail::_internal_set_d(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  d_ = value;
-}
-inline void IndexDetail::set_d(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_d(value);
-  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.d)
-}
-
-// string index_path = 3;
+// string index_path = 2;
 inline void IndexDetail::clear_index_path() {
   index_path_.ClearToEmpty();
 }
@@ -3072,24 +3169,124 @@ inline void IndexDetail::set_allocated_index_path(std::string* index_path) {
   // @@protoc_insertion_point(field_set_allocated:faiss_grpc.IndexDetail.index_path)
 }
 
-// int64 last_load = 4;
-inline void IndexDetail::clear_last_load() {
-  last_load_ = int64_t{0};
+// int64 last_load_timestamp = 3;
+inline void IndexDetail::clear_last_load_timestamp() {
+  last_load_timestamp_ = int64_t{0};
 }
-inline ::PROTOBUF_NAMESPACE_ID::int64 IndexDetail::_internal_last_load() const {
-  return last_load_;
+inline ::PROTOBUF_NAMESPACE_ID::int64 IndexDetail::_internal_last_load_timestamp() const {
+  return last_load_timestamp_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int64 IndexDetail::last_load() const {
-  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.last_load)
-  return _internal_last_load();
+inline ::PROTOBUF_NAMESPACE_ID::int64 IndexDetail::last_load_timestamp() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.last_load_timestamp)
+  return _internal_last_load_timestamp();
 }
-inline void IndexDetail::_internal_set_last_load(::PROTOBUF_NAMESPACE_ID::int64 value) {
+inline void IndexDetail::_internal_set_last_load_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value) {
   
-  last_load_ = value;
+  last_load_timestamp_ = value;
 }
-inline void IndexDetail::set_last_load(::PROTOBUF_NAMESPACE_ID::int64 value) {
-  _internal_set_last_load(value);
-  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.last_load)
+inline void IndexDetail::set_last_load_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_last_load_timestamp(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.last_load_timestamp)
+}
+
+// int32 d = 4;
+inline void IndexDetail::clear_d() {
+  d_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::_internal_d() const {
+  return d_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::d() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.d)
+  return _internal_d();
+}
+inline void IndexDetail::_internal_set_d(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  d_ = value;
+}
+inline void IndexDetail::set_d(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_d(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.d)
+}
+
+// int32 ntotal = 5;
+inline void IndexDetail::clear_ntotal() {
+  ntotal_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::_internal_ntotal() const {
+  return ntotal_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 IndexDetail::ntotal() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.ntotal)
+  return _internal_ntotal();
+}
+inline void IndexDetail::_internal_set_ntotal(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  ntotal_ = value;
+}
+inline void IndexDetail::set_ntotal(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_ntotal(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.ntotal)
+}
+
+// bool is_trained = 6;
+inline void IndexDetail::clear_is_trained() {
+  is_trained_ = false;
+}
+inline bool IndexDetail::_internal_is_trained() const {
+  return is_trained_;
+}
+inline bool IndexDetail::is_trained() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.is_trained)
+  return _internal_is_trained();
+}
+inline void IndexDetail::_internal_set_is_trained(bool value) {
+  
+  is_trained_ = value;
+}
+inline void IndexDetail::set_is_trained(bool value) {
+  _internal_set_is_trained(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.is_trained)
+}
+
+// .faiss_grpc.IndexDetail.MetricType metric_type = 7;
+inline void IndexDetail::clear_metric_type() {
+  metric_type_ = 0;
+}
+inline ::faiss_grpc::IndexDetail_MetricType IndexDetail::_internal_metric_type() const {
+  return static_cast< ::faiss_grpc::IndexDetail_MetricType >(metric_type_);
+}
+inline ::faiss_grpc::IndexDetail_MetricType IndexDetail::metric_type() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.metric_type)
+  return _internal_metric_type();
+}
+inline void IndexDetail::_internal_set_metric_type(::faiss_grpc::IndexDetail_MetricType value) {
+  
+  metric_type_ = value;
+}
+inline void IndexDetail::set_metric_type(::faiss_grpc::IndexDetail_MetricType value) {
+  _internal_set_metric_type(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.metric_type)
+}
+
+// float metric_arg = 8;
+inline void IndexDetail::clear_metric_arg() {
+  metric_arg_ = 0;
+}
+inline float IndexDetail::_internal_metric_arg() const {
+  return metric_arg_;
+}
+inline float IndexDetail::metric_arg() const {
+  // @@protoc_insertion_point(field_get:faiss_grpc.IndexDetail.metric_arg)
+  return _internal_metric_arg();
+}
+inline void IndexDetail::_internal_set_metric_arg(float value) {
+  
+  metric_arg_ = value;
+}
+inline void IndexDetail::set_metric_arg(float value) {
+  _internal_set_metric_arg(value);
+  // @@protoc_insertion_point(field_set:faiss_grpc.IndexDetail.metric_arg)
 }
 
 // -------------------------------------------------------------------
@@ -3465,6 +3662,11 @@ template <> struct is_proto_enum< ::faiss_grpc::ResponseStatus_Stat> : ::std::tr
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::faiss_grpc::ResponseStatus_Stat>() {
   return ::faiss_grpc::ResponseStatus_Stat_descriptor();
+}
+template <> struct is_proto_enum< ::faiss_grpc::IndexDetail_MetricType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::faiss_grpc::IndexDetail_MetricType>() {
+  return ::faiss_grpc::IndexDetail_MetricType_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

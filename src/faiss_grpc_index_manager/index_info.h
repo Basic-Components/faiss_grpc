@@ -14,14 +14,13 @@ namespace faiss_grpc_index_manager{
     class IndexInfo {
         public:
         std::string index_name="";
-        int index_version=0;
         std::string index_path="";
         std::string file_hash="";
         time_t last_update;
         std::unique_ptr<Index> index; 
         bool loaded=false;
         IndexInfo(){};
-        IndexInfo(std::string index_name,int index_version, std::string index_path): index_name(index_name),index_version(index_version) index_path(index_path),loaded(false) {};
+        IndexInfo(std::string index_name,int index_version, std::string index_path): index_name(index_name), index_path(index_path),loaded(false) {};
         
         void load_index();
         std::vector<TopK> search_top_k(BatchVec& query, int k);
