@@ -20,7 +20,6 @@
 
 using nlohmann::json;
 using Logger = spdloghelper::LogHelper;
-using fschangecallback = faiss_grpc_index_manager::fschangecallback;
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -29,6 +28,8 @@ using grpc::SslServerCredentialsOptions;
 
 using fsw::monitor;
 using fsw::monitor_factory;
+
+using IndexManager = faiss_grpc_index_manager::IndexManager;
 
 // 读取文件
 void read (const std::string& filename, std::string& data){
@@ -48,6 +49,7 @@ namespace faiss_grpc_serv{
         auto address = this->config["address"].get<std::string>();
         auto app_name = this->config["app_name"].get<std::string>();
         auto log_level = this->config["log_level"].get<std::string>();
+        auto index_dir = this->config["index_dir"].get<std::string>();
         auto logger = Logger::getInstance();
         if (this->config.contains("app_version")){
             auto app_version = this->config["app_version"].get<std::string>();
@@ -55,11 +57,15 @@ namespace faiss_grpc_serv{
         }else{
             logger->init_logger(log_level,app_name);
         }
+        IndexManager* index_manager = IndexManager::getInstance();
+        index_manager->set_index_dir(index_dir);
+        index_manager->load_index_dir();
+        
         //监听index变化
         monitor *active_monitor = monitor_factory::create_monitor(
             fsw_monitor_type::poll_monitor_type,
-            this->index_dirs,
-            fschangecallback
+            {index_dir},
+            faiss_grpc_index_manager::fschangecallback
         );
         // Configure the monitor
         active_monitor->add_event_type_filter({Updated});
@@ -67,7 +73,7 @@ namespace faiss_grpc_serv{
 
         // Start the monitor 
         std::thread t([&]() {
-            spdlog::info((json{{"event", "start watching fs"},{"path", this->index_dirs}}).dump());
+            logger->info("start watching fs",{{"path", index_dir}});
             active_monitor->start(); 
             });
         t.detach();

@@ -55,11 +55,11 @@ namespace faiss_grpc_index_manager{
     };
 
     //ConfigFileEmptyException 配置文件为空
-    class ConfigFileNotExistException : public std::exception{
+    class ConfigFileEmptyException : public std::exception{
         public:
-        ConfigFileNotExistException() : message("config file empty") {};
-        ConfigFileNotExistException(std::string str) : message("config file empty: " + str) {};
-        ~ConfigFileNotExistException() throw(){};
+        ConfigFileEmptyException() : message("config file empty") {};
+        ConfigFileEmptyException(std::string str) : message("config file empty: " + str) {};
+        ~ConfigFileEmptyException() throw(){};
         virtual const char *what() const throw(){
             return message.c_str();
         };

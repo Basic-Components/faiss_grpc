@@ -15,7 +15,6 @@
 
 //pb的依赖
 using faiss_grpc::BatchVec;
-using faiss_grpc::TopK;
 using faiss_grpc::IndexDetail;
 
 using fsw::event;
@@ -26,7 +25,7 @@ namespace faiss_grpc_index_manager{
         private:
         IndexManager(){};
         static IndexManager *p;
-        std::string index_dir="./index";
+        std::string index_dir="./indexes";
         std::mutex lock;
         std::map<std::string, IndexInfo> name_map;//索引
         // 单体
@@ -40,14 +39,14 @@ namespace faiss_grpc_index_manager{
         };
 
         // 总体
+        void set_index_dir(std::string);
         void load_index_dir();
         void reload_index(std::string);
         // void watch_index_dir();
         // void stop_watch_index_dir();
 
-        std::vector<TopK*> search(std::string, BatchVec& , int );
+        std::vector<std::vector<long long>> search(std::string, BatchVec& , int );
         std::vector<std::string> get_index_list();
         IndexDetail* get_index_metadata(std::string);
-        
     };
 }

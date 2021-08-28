@@ -26,7 +26,6 @@ using idx_t = faiss::Index::idx_t;// 64-bit int
 
 //pb的依赖
 using faiss_grpc::BatchVec;
-using faiss_grpc::TopK;
 
 
 namespace faiss_grpc_index_manager{
@@ -34,7 +33,7 @@ namespace faiss_grpc_index_manager{
     void IndexInfo::load_index(){
         Logger* logger = Logger::getInstance();
         logger->info("loading index",{{"index_name", this->index_name },{ "index_path", this->index_path}});
-        std::ifstream file(this->config_path);
+        std::ifstream file(this->index_path);
         if (file.is_open()){
             std::stringstream buffer;
             buffer << file.rdbuf();
@@ -63,13 +62,13 @@ namespace faiss_grpc_index_manager{
             throw IndexFileNotExistException();
         }
     }
-    std::vector<TopK*> IndexInfo::search_top_k(BatchVec& query, int k){
+    std::vector<std::vector<long long>> IndexInfo::search_top_k(BatchVec& query, int k){
         if (!this->loaded){
-            throw IndexNotLoadException()
+            throw IndexNotLoadException();
         }
         auto nq = query.batch_size();// 长度
         if (nq < 1){
-            throw QueryBatchLessThan1Exception()
+            throw QueryBatchLessThan1Exception();
         }
         auto d = query.batch(0).elements_size();//维度
         Logger* logger = Logger::getInstance();
@@ -87,12 +86,13 @@ namespace faiss_grpc_index_manager{
         this->index->search(nq, xq, k, D, I);
         logger->debug("search ok");
 
-        std::vector<TopK> result;
+        std::vector<std::vector<long long>> result;
         for (int i = 0; i < nq; i++){
-            TopK* v;
+            std::vector<long long> v;
             for (int j = 0; j < k; j++){
-                v->add_rank(I[i * k + j]);
+                v.push_back(I[i * k + j]);
             }
+            printf("\n ");
             result.push_back(v);
         }
         delete[] I;

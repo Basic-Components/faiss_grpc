@@ -34,12 +34,12 @@ namespace faiss_grpc_serv {
     const json SCHEMA = R"({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": ["app_name", "address", "log_level"],
+    "required": ["app_name", "address", "log_level", "index_dir"],
     "properties": {
         "app_version": {
             "type": "string",
             "title": "v",
-            "description": "应用版本"
+            "description": "应用版本",
             "default": "0.0.2"
         },
         "app_name": {
@@ -122,6 +122,11 @@ namespace faiss_grpc_serv {
         "keepalive_enforement_permit_without_stream": {
             "type": "boolean",
             "description": "即使没有活动流也允许ping"
+        },
+        "index_dir":{
+            "type": "string",
+            "description": "存放index的目录地址",
+            "default": "./indexes"
         }
     }
 })"_json;

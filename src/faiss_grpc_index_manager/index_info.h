@@ -7,7 +7,6 @@
 #include "../faiss_grpc_pb/faiss_grpc.grpc.pb.h"
 
 using faiss_grpc::BatchVec;
-using faiss_grpc::TopK;
 
 using faiss::Index;
 
@@ -22,9 +21,9 @@ namespace faiss_grpc_index_manager{
         std::unique_ptr<Index> index; 
         bool loaded=false;
         IndexInfo(){};
-        IndexInfo(std::string index_name,int index_version, std::string index_path): index_name(index_name), index_path(index_path),loaded(false) {};
+        IndexInfo(std::string index_name, std::string index_path): index_name(index_name), index_path(index_path),loaded(false) {};
         
         void load_index();
-        std::vector<TopK*> search_top_k(BatchVec& query, int k);
+        std::vector<std::vector<long long>> search_top_k(BatchVec& query, int k);
     };
 }

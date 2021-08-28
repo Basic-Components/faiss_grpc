@@ -14,7 +14,7 @@ project(faiss_grpc
 include(${CMAKE_CURRENT_LIST_DIR}/build/conanbuildinfo.cmake)
 conan_basic_setup()
 
-add_definitions("-std=c++17")
+add_definitions("-std=c++20")
 add_definitions("-fopenmp")
 add_executable(${PROJECT_NAME})
 
@@ -41,4 +41,6 @@ target_link_libraries(${PROJECT_NAME}
     ${CONAN_LIBS}
     gomp
     openblas
+    gfortran
+    quadmath
 )

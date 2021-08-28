@@ -111,7 +111,9 @@ namespace faiss_grpc_serv {
         // auto result = response->mutable_result();
         for (auto r : res){
             auto t = response->add_result();
-            t->set_ r->rank();
+            for (auto i : r){
+                t->add_rank(i);
+            }
         }
         return Status::OK;
     }
@@ -128,7 +130,7 @@ namespace faiss_grpc_serv {
                 sta->set_message("id must not empty");
                 return Status::OK;
             }
-            response.set_id(id)
+            response.set_id(id);
             if (!request.has_query_vecs()){
                 auto sta = response.mutable_status();
                 sta->set_status(ResponseStatus_Stat_FAILED);
@@ -158,9 +160,12 @@ namespace faiss_grpc_serv {
             auto sta = response.mutable_status();
             sta->set_status(ResponseStatus_Stat_SUCCEED);
             sta->set_message("ok");
-            auto result = response.mutable_result();
+            // auto result = response.mutable_result();
             for (auto r : res){
-                result->add_result(r);
+                auto t = response.add_result();
+                for (auto i : r){
+                    t->add_rank(i);
+                }
             }
             stream->Write(response);
         }
