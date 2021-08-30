@@ -57,6 +57,7 @@ namespace faiss_grpc_serv{
         }else{
             logger->init_logger(log_level,app_name);
         }
+        logger->info("get config",{{"config",this->config.dump() }});
         IndexManager* index_manager = IndexManager::getInstance();
         index_manager->set_index_dir(index_dir);
         index_manager->load_index_dir();
