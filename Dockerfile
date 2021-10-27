@@ -1,6 +1,6 @@
 # 构造可执行文件
-FROM --platform=$TARGETPLATFORM dev.hszofficial.site:9443/library/buildx_cxx_env:alpine3.13-gcc10-conan1.39.0-vcpkgmaster as build_bin
-RUN apk --no-cache add openblas-static lapack-dev && rm -rf /var/cache/apk/* 
+FROM --platform=$TARGETPLATFORM dev.hszofficial.site:9443/library/buildx_cxx_env:alpine3.13-gcc10-conan1.41.0-protoc3.17.1-grpc1.39.1 as build_bin
+RUN apk add --no-cache openblas-static lapack-dev && rm -rf /var/cache/apk/* 
 WORKDIR /code
 COPY CMakeLists.txt CMakeLists.txt
 COPY conanfile.txt conanfile.txt
@@ -22,11 +22,13 @@ ENV CGO_ENABLED=0
 RUN go get github.com/grpc-ecosystem/grpc-health-probe
 
 # 使用压缩过的可执行文件构造镜像
-FROM --platform=$TARGETPLATFORM scratch as build_img
+FROM --platform=$TARGETPLATFORM alpine:3.14 as build_img
 # 健康检测
 COPY --from=build_grpc-health-probe /go/bin/grpc-health-probe /grpc-health-probe
 # 应用
 COPY --from=build_bin /code/build/bin/faiss_grpc /faiss_grpc 
 EXPOSE 5000
+RUN chmod +x /faiss_grpc
+RUN chmod +x /grpc-health-probe
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "/grpc-health-probe","-addr=:5000" ]
 ENTRYPOINT [ "/faiss_grpc"]

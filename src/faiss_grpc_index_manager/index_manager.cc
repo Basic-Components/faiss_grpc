@@ -156,7 +156,7 @@ namespace faiss_grpc_index_manager{
         if (!this->name_map.contains(index_name)){
             throw IndexNameNotExistException(index_name);
         }
-        IndexDetail* result;
+        auto result = new IndexDetail;
         result->set_index_name(this->name_map[index_name].index_name);
         result->set_index_path(this->name_map[index_name].index_path);
         long long last_load_timestamp = this->name_map[index_name].last_update;

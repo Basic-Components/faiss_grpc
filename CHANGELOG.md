@@ -6,6 +6,10 @@
 2. 增加了`get_index_list`,`get_index_metadata`接口用于获取服务状态
 3. 增加了`reload_index`接口用于手动重载index
 
+## 依赖更新
+
++ `grpc -> 1.39.1`
+
 ## 修改实现
 
 1. 改用conan维护依赖

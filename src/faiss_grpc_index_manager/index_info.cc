@@ -4,6 +4,7 @@
 #include <string>
 #include <ctime>
 #include <exception>
+#include <utility>
 
 #include <spdloghelper.h>
 #include <faiss/Index.h>
@@ -46,7 +47,8 @@ namespace faiss_grpc_index_manager{
                 return;
             }
             try {
-                this->index = std::unique_ptr<Index>(read_index(this->index_path.c_str()));
+                auto index = std::unique_ptr<Index>(read_index(this->index_path.c_str()));
+                this->index = std::move(index);
             }catch (std::exception &e){
                 logger->error("load index get error",{{"index_name", this->index_name },{ "index_path", this->index_path},{"error",e.what()}});
             }

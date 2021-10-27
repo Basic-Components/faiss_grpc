@@ -11,7 +11,7 @@
 
 已经使用docker打包了如下两个镜像列表:
 
-+ `hsz1273327/faiss-grpc-cpu`支持amd64平台,使用cpu进行计算,支持的tag为`amd64-0.0.0`
++ `hsz1273327/faiss-grpc-cpu`支持amd64平台,使用cpu进行计算,支持的tag为`amd64-0.2.0`
 <!-- + `hsz1273327/faiss-grpc-gpu`支持amd64和arm64平台,使用cpu进行计算 -->
 
 执行`docker run -v localindexdirpath:/indexes hsz1273327/faiss-grpc-cpu`即可,`localindexdirpat`指代你的索引文件所在文件夹路径
@@ -160,12 +160,12 @@
 
 ## 自己打包镜像
 
-### 准备工作
+`Dockerfile`已经提供,可以使用`docker build`自己打镜像
 
-1. 需要下载cmake的amd64版本(`cmake-3.20.0-linux-x86_64.sh`)或arm(`cmake-3.20.0-linux-x86_64.sh`)版本的安装脚本到本地项目根目录,分别改名为`cmake-amd64`和`cmake-arm64`,这样才能支持多平台.
-2. 下载faiss v1.7.0的源码,解压后放到`thirdpart/faiss-1.7.0`位置.
-3. 下载`https://github.com/nlohmann/json/archive/v3.9.1.tar.gz`,`https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz`,`github.com/p-ranav/argparse的master分支`的源码解压到`thirdpart`对应目录(如果网络条件差)
+## 测试功能
 
-### 打包镜像
+测试使用我自己的脚手架`pmfp`,执行命令记录在`test.sh`中.请求的payload保存在`testquery`文件夹下.测试时记得先本地5000端口起起来服务(如果有docker环境可以直接执行`docker-compose up`).
 
-执行`buildimg.ps1`中的指令即可.
+## 关于编译的说明
+
+本项目使用了几个本人自己封装的包,这几个包由于conan仓库的原因目前只存在自家仓库里.

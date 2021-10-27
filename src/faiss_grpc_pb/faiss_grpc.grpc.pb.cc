@@ -47,11 +47,11 @@ FAISS_GRPC::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel
   return ::grpc::internal::BlockingUnaryCall< ::faiss_grpc::Query, ::faiss_grpc::Response, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_search_, context, request, response);
 }
 
-void FAISS_GRPC::Stub::experimental_async::search(::grpc::ClientContext* context, const ::faiss_grpc::Query* request, ::faiss_grpc::Response* response, std::function<void(::grpc::Status)> f) {
+void FAISS_GRPC::Stub::async::search(::grpc::ClientContext* context, const ::faiss_grpc::Query* request, ::faiss_grpc::Response* response, std::function<void(::grpc::Status)> f) {
   ::grpc::internal::CallbackUnaryCall< ::faiss_grpc::Query, ::faiss_grpc::Response, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_search_, context, request, response, std::move(f));
 }
 
-void FAISS_GRPC::Stub::experimental_async::search(::grpc::ClientContext* context, const ::faiss_grpc::Query* request, ::faiss_grpc::Response* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+void FAISS_GRPC::Stub::async::search(::grpc::ClientContext* context, const ::faiss_grpc::Query* request, ::faiss_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_search_, context, request, response, reactor);
 }
 
@@ -70,7 +70,7 @@ void FAISS_GRPC::Stub::experimental_async::search(::grpc::ClientContext* context
   return ::grpc::internal::ClientReaderWriterFactory< ::faiss_grpc::Query, ::faiss_grpc::Response>::Create(channel_.get(), rpcmethod_batch_search_, context);
 }
 
-void FAISS_GRPC::Stub::experimental_async::batch_search(::grpc::ClientContext* context, ::grpc::experimental::ClientBidiReactor< ::faiss_grpc::Query,::faiss_grpc::Response>* reactor) {
+void FAISS_GRPC::Stub::async::batch_search(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::faiss_grpc::Query,::faiss_grpc::Response>* reactor) {
   ::grpc::internal::ClientCallbackReaderWriterFactory< ::faiss_grpc::Query,::faiss_grpc::Response>::Create(stub_->channel_.get(), stub_->rpcmethod_batch_search_, context, reactor);
 }
 
@@ -86,11 +86,11 @@ void FAISS_GRPC::Stub::experimental_async::batch_search(::grpc::ClientContext* c
   return ::grpc::internal::BlockingUnaryCall< ::faiss_grpc::ListQuery, ::faiss_grpc::ListResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_get_index_list_, context, request, response);
 }
 
-void FAISS_GRPC::Stub::experimental_async::get_index_list(::grpc::ClientContext* context, const ::faiss_grpc::ListQuery* request, ::faiss_grpc::ListResponse* response, std::function<void(::grpc::Status)> f) {
+void FAISS_GRPC::Stub::async::get_index_list(::grpc::ClientContext* context, const ::faiss_grpc::ListQuery* request, ::faiss_grpc::ListResponse* response, std::function<void(::grpc::Status)> f) {
   ::grpc::internal::CallbackUnaryCall< ::faiss_grpc::ListQuery, ::faiss_grpc::ListResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_get_index_list_, context, request, response, std::move(f));
 }
 
-void FAISS_GRPC::Stub::experimental_async::get_index_list(::grpc::ClientContext* context, const ::faiss_grpc::ListQuery* request, ::faiss_grpc::ListResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+void FAISS_GRPC::Stub::async::get_index_list(::grpc::ClientContext* context, const ::faiss_grpc::ListQuery* request, ::faiss_grpc::ListResponse* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_get_index_list_, context, request, response, reactor);
 }
 
@@ -109,11 +109,11 @@ void FAISS_GRPC::Stub::experimental_async::get_index_list(::grpc::ClientContext*
   return ::grpc::internal::BlockingUnaryCall< ::faiss_grpc::MetadataQuery, ::faiss_grpc::MetadataResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_get_index_metadata_, context, request, response);
 }
 
-void FAISS_GRPC::Stub::experimental_async::get_index_metadata(::grpc::ClientContext* context, const ::faiss_grpc::MetadataQuery* request, ::faiss_grpc::MetadataResponse* response, std::function<void(::grpc::Status)> f) {
+void FAISS_GRPC::Stub::async::get_index_metadata(::grpc::ClientContext* context, const ::faiss_grpc::MetadataQuery* request, ::faiss_grpc::MetadataResponse* response, std::function<void(::grpc::Status)> f) {
   ::grpc::internal::CallbackUnaryCall< ::faiss_grpc::MetadataQuery, ::faiss_grpc::MetadataResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_get_index_metadata_, context, request, response, std::move(f));
 }
 
-void FAISS_GRPC::Stub::experimental_async::get_index_metadata(::grpc::ClientContext* context, const ::faiss_grpc::MetadataQuery* request, ::faiss_grpc::MetadataResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+void FAISS_GRPC::Stub::async::get_index_metadata(::grpc::ClientContext* context, const ::faiss_grpc::MetadataQuery* request, ::faiss_grpc::MetadataResponse* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_get_index_metadata_, context, request, response, reactor);
 }
 
@@ -132,11 +132,11 @@ void FAISS_GRPC::Stub::experimental_async::get_index_metadata(::grpc::ClientCont
   return ::grpc::internal::BlockingUnaryCall< ::faiss_grpc::ReloadQuery, ::faiss_grpc::ReloadResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_reload_index_, context, request, response);
 }
 
-void FAISS_GRPC::Stub::experimental_async::reload_index(::grpc::ClientContext* context, const ::faiss_grpc::ReloadQuery* request, ::faiss_grpc::ReloadResponse* response, std::function<void(::grpc::Status)> f) {
+void FAISS_GRPC::Stub::async::reload_index(::grpc::ClientContext* context, const ::faiss_grpc::ReloadQuery* request, ::faiss_grpc::ReloadResponse* response, std::function<void(::grpc::Status)> f) {
   ::grpc::internal::CallbackUnaryCall< ::faiss_grpc::ReloadQuery, ::faiss_grpc::ReloadResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_reload_index_, context, request, response, std::move(f));
 }
 
-void FAISS_GRPC::Stub::experimental_async::reload_index(::grpc::ClientContext* context, const ::faiss_grpc::ReloadQuery* request, ::faiss_grpc::ReloadResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+void FAISS_GRPC::Stub::async::reload_index(::grpc::ClientContext* context, const ::faiss_grpc::ReloadQuery* request, ::faiss_grpc::ReloadResponse* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_reload_index_, context, request, response, reactor);
 }
 
