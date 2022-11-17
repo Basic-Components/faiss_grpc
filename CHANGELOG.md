@@ -1,3 +1,10 @@
+# 0.0.3
+
+## 新特性
+
+1. 修改监听逻辑,现在和tf-serving一致,`index名->index版本->xxx.index`
+2. 移出`--index-dir`,改为使用参数`--index-config-file`和`--index-config-poll_wait_seconds`指定配置文件来监听索引变化.逻辑参考tf-serving
+
 # 0.0.2
 
 ## 新特性

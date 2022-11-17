@@ -2,6 +2,8 @@
 
 这个项目的目的是使用grpc封装faiss来线上查找的相似度top k.
 
+**注意**: 本项目不再维护,如果需要类似功能,请使用[milvus](https://github.com/milvus-io/milvus)
+
 ## 特性
 
 1. 监听文件系统变化以刷新index
